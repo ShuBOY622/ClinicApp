@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getPatientById, deletePatient } from '../services/patientService';
 import { getPrescriptionsByPatient } from '../services/prescriptionService';
 import { getDietPlansByPatient } from '../services/dietPlanService';
@@ -10,14 +10,28 @@ import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaA
 const PatientDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [patient, setPatient] = useState(null);
     const [prescriptions, setPrescriptions] = useState([]);
     const [dietPlans, setDietPlans] = useState([]);
     const [followUps, setFollowUps] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('personal');
+
+    const tabParam = searchParams.get('tab');
+    const [activeTab, setActiveTab] = useState(tabParam || 'personal');
     const [uploading, setUploading] = useState(false);
+
+    useEffect(() => {
+        if (tabParam) {
+            setActiveTab(tabParam);
+        }
+    }, [tabParam]);
+
+    const handleTabChange = (tabId) => {
+        setActiveTab(tabId);
+        setSearchParams({ tab: tabId });
+    };
 
     useEffect(() => {
         const fetchPatient = async () => {
@@ -111,7 +125,7 @@ const PatientDetails = () => {
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
+                                onClick={() => handleTabChange(tab.id)}
                                 className={`group inline-flex items-center px-6 py-4 border-b-2 font-medium text-sm ${activeTab === tab.id
                                     ? 'border-primary text-primary'
                                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
