@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { FaUserInjured, FaPills, FaFilePrescription, FaCalendarAlt, FaHome, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserInjured, FaPills, FaFilePrescription, FaCalendarAlt, FaHome, FaStethoscope } from 'react-icons/fa';
 import clsx from 'clsx';
 
 const Sidebar = () => {
@@ -14,21 +14,28 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className="flex flex-col w-64 bg-white border-r border-slate-200 h-full">
-            <div className="flex items-center justify-center h-16 border-b border-slate-200">
-                <span className="text-2xl font-bold text-primary">ClinicApp</span>
+        <div className="flex flex-col w-64 bg-gradient-to-b from-slate-50 to-white border-r border-slate-200 h-full shadow-lg">
+            <div className="flex items-center justify-center h-16 border-b border-slate-200 bg-white/50 backdrop-blur-sm">
+                <div className="flex items-center space-x-2">
+                    <div className="bg-gradient-to-br from-sky-500 to-blue-600 p-2 rounded-lg">
+                        <FaStethoscope className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
+                        ClinicApp
+                    </span>
+                </div>
             </div>
-            <nav className="flex-1 overflow-y-auto py-4">
-                <ul className="space-y-1 px-2">
+            <nav className="flex-1 overflow-y-auto py-6">
+                <ul className="space-y-2 px-3">
                     {navItems.map((item) => (
                         <li key={item.path}>
                             <Link
                                 to={item.path}
                                 className={clsx(
-                                    'flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors',
+                                    'flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200',
                                     location.pathname.startsWith(item.path)
-                                        ? 'bg-primary/10 text-primary'
-                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                        ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-200 transform scale-105'
+                                        : 'text-slate-600 hover:bg-gradient-to-r hover:from-sky-50 hover:to-blue-50 hover:text-sky-700 hover:shadow-md'
                                 )}
                             >
                                 <item.icon className="mr-3 h-5 w-5" />
@@ -38,12 +45,6 @@ const Sidebar = () => {
                     ))}
                 </ul>
             </nav>
-            <div className="p-4 border-t border-slate-200">
-                <button className="flex items-center w-full px-4 py-2 text-sm font-medium text-slate-600 hover:text-red-600 transition-colors">
-                    <FaSignOutAlt className="mr-3 h-5 w-5" />
-                    Logout
-                </button>
-            </div>
         </div>
     );
 };
