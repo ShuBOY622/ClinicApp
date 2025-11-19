@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
+import LandingPage from './pages/LandingPage';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import PatientList from './pages/PatientList';
@@ -17,9 +19,9 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="patients" element={<PatientList />} />
           <Route path="patients/new" element={<PatientForm />} />
