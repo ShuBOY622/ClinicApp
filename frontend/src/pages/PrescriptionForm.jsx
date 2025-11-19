@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { createPrescription } from '../services/prescriptionService';
-import { searchPatients } from '../services/patientService';
+import { searchPatients, getPatientById } from '../services/patientService';
 import { searchMedicines } from '../services/medicineService';
 import { FaArrowLeft, FaSave, FaPlus, FaTrash, FaSearch } from 'react-icons/fa';
 
@@ -67,11 +67,29 @@ const PrescriptionForm = () => {
     }, [medicineSearch]);
 
     const selectPatient = (patient) => {
+        console.log('Selecting patient:', patient);
         setSelectedPatient(patient);
         setValue('patientId', patient.id);
         setPatientSearch('');
         setPatientResults([]);
     };
+
+    // Fetch patient if patientId param exists
+    useEffect(() => {
+        if (patientIdParam) {
+            console.log('Found patientId param:', patientIdParam);
+            const fetchPatient = async () => {
+                try {
+                    const response = await getPatientById(patientIdParam);
+                    console.log('Fetched patient:', response.data);
+                    selectPatient(response.data);
+                } catch (error) {
+                    console.error('Error fetching patient:', error);
+                }
+            };
+            fetchPatient();
+        }
+    }, [patientIdParam]);
 
     const selectMedicine = (medicine, index) => {
         setValue(`medicines.${index}.medicineId`, medicine.id);
