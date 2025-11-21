@@ -1,0 +1,253 @@
+/* Marathi font support */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+
+/* Print-specific styles */
+@media print {
+
+    /* Reset everything */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Hide everything except prescription */
+    body * {
+        visibility: hidden;
+    }
+
+    .prescription-print-content,
+    .prescription-print-content * {
+        visibility: visible;
+    }
+
+    /* Proper positioning for print */
+    .prescription-print-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20mm;
+        background: white;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    /* Page setup */
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    /* Ensure proper layout */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Remove any transforms or positioning from parent elements */
+    .printable-prescription-container {
+        position: static;
+        margin: 0;
+        padding: 0;
+        max-width: none;
+    }
+
+    /* Ensure text is black for printing */
+    .prescription-print-content,
+    .prescription-print-content * {
+        color: #000 !important;
+        background: white !important;
+    }
+
+    /* Remove shadows and gradients */
+    .prescription-print-content * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        background-image: none !important;
+    }
+
+    /* Ensure borders print */
+    .prescription-header {
+        border-bottom: 2px solid #000 !important;
+    }
+
+    .prescription-divider {
+        border-top: 1px solid #000 !important;
+    }
+
+    /* Prevent page breaks inside important sections */
+    .prescription-section,
+    .patient-info,
+    .prescription-header {
+        page-break-inside: avoid;
+    }
+
+    /* Ensure proper spacing */
+    .prescription-print-content {
+        line-height: 1.6;
+    }
+}
+
+/* Screen styles */
+.printable-prescription-container {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.prescription-print-content {
+    background: white;
+    padding: 40px;
+    font-family: 'Noto Sans Devanagari', 'Arial', sans-serif;
+    line-height: 1.8;
+    color: #000;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.prescription-header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 15px;
+}
+
+.clinic-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: #1e40af;
+}
+
+.clinic-name-en {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 5px 0;
+    color: #0ea5e9;
+}
+
+.clinic-contact {
+    font-size: 12px;
+    margin: 5px 0 0 0;
+    color: #666;
+}
+
+.prescription-divider {
+    border-top: 1px solid #ccc;
+    margin: 15px 0;
+}
+
+.prescription-date {
+    text-align: right;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.prescription-date .label {
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.patient-info {
+    margin-bottom: 20px;
+    font-size: 14px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.info-row {
+    margin-bottom: 8px;
+}
+
+.info-row .label {
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.info-row .value {
+    margin-right: 20px;
+}
+
+.prescription-section {
+    margin-bottom: 25px;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #1e293b;
+    border-left: 4px solid #0ea5e9;
+    padding-left: 10px;
+}
+
+.section-content {
+    font-size: 14px;
+    padding: 10px 0;
+    min-height: 40px;
+}
+
+.blank-lines {
+    margin-top: 10px;
+}
+
+.blank-line {
+    border-bottom: 1px solid #d1d5db;
+    height: 30px;
+    margin-bottom: 5px;
+}
+
+.examination-grid {
+    margin-top: 10px;
+}
+
+.exam-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.exam-row .label {
+    font-weight: 600;
+    min-width: 100px;
+}
+
+.exam-row .underline {
+    flex: 1;
+    border-bottom: 1px solid #000;
+    margin: 0 10px;
+    height: 20px;
+}
+
+.medicine-list {
+    margin-top: 10px;
+}
+
+.medicine-item {
+    font-size: 14px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.prescription-signature {
+    margin-top: 60px;
+    text-align: right;
+}
+
+.signature-line {
+    display: inline-block;
+    border-top: 2px solid #000;
+    padding-top: 10px;
+    min-width: 200px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+}

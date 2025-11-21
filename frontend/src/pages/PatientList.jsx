@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getPatients, searchPatients, deletePatient } from '../services/patientService';
 import { FaPlus, FaSearch, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 const PatientList = () => {
+    const { t } = useTranslation();
     const [patients, setPatients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [keyword, setKeyword] = useState('');
@@ -36,7 +38,7 @@ const PatientList = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this patient?')) {
+        if (window.confirm(t('patient.confirmDelete') || 'Are you sure you want to delete this patient?')) {
             try {
                 await deletePatient(id);
                 fetchPatients();
@@ -49,56 +51,58 @@ const PatientList = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-slate-800">Patients</h2>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
+                    {t('patient.title')}
+                </h2>
                 <Link
                     to="/patients/new"
-                    className="bg-primary text-white px-4 py-2 rounded-md flex items-center hover:bg-sky-600 transition-colors"
+                    className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:shadow-lg transition-all"
                 >
-                    <FaPlus className="mr-2" /> Add Patient
+                    <FaPlus className="mr-2" /> {t('patient.addPatient')}
                 </Link>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mb-6">
+            <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-slate-200 mb-6">
                 <form onSubmit={handleSearch} className="flex gap-4">
                     <div className="flex-1 relative">
                         <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Search by name or phone..."
-                            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            placeholder={t('patient.searchPatients')}
+                            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/50"
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
                         />
                     </div>
                     <button
                         type="submit"
-                        className="bg-slate-800 text-white px-6 py-2 rounded-md hover:bg-slate-700 transition-colors"
+                        className="bg-gradient-to-r from-slate-700 to-slate-800 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
                     >
-                        Search
+                        {t('common.search')}
                     </button>
                 </form>
             </div>
 
             {loading ? (
-                <div className="text-center py-10">Loading...</div>
+                <div className="text-center py-10 text-slate-600">{t('common.loading')}</div>
             ) : (
-                <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
                     <table className="min-w-full divide-y divide-slate-200">
-                        <thead className="bg-slate-50">
+                        <thead className="bg-gradient-to-r from-slate-50 to-sky-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Gender</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Age</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">{t('common.name')}</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">{t('common.phone')}</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">{t('common.gender')}</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">{t('common.age')}</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase tracking-wider">{t('common.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-200">
                             {patients.map((patient) => (
-                                <tr key={patient.id} className="hover:bg-slate-50">
+                                <tr key={patient.id} className="hover:bg-sky-50/50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
-                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center text-sky-700 font-bold">
                                                 {patient.firstName.charAt(0)}
                                             </div>
                                             <div className="ml-4">
@@ -113,10 +117,10 @@ const PatientList = () => {
                                         {new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <Link to={`/patients/${patient.id}`} className="text-primary hover:text-sky-700 mr-4">
+                                        <Link to={`/patients/${patient.id}`} className="text-sky-600 hover:text-sky-800 mr-4" title={t('common.view')}>
                                             <FaEye className="inline" />
                                         </Link>
-                                        <button onClick={() => handleDelete(patient.id)} className="text-red-500 hover:text-red-700">
+                                        <button onClick={() => handleDelete(patient.id)} className="text-red-500 hover:text-red-700" title={t('common.delete')}>
                                             <FaTrash className="inline" />
                                         </button>
                                     </td>
@@ -124,7 +128,6 @@ const PatientList = () => {
                             ))}
                         </tbody>
                     </table>
-                    {/* Pagination Controls could go here */}
                 </div>
             )}
         </div>

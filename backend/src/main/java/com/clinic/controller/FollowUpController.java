@@ -55,6 +55,13 @@ public class FollowUpController {
         return ResponseEntity.ok(followUpService.getTodaysFollowUps());
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<FollowUpDTO> updateFollowUpStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        return ResponseEntity.ok(followUpService.updateFollowUpStatus(id, status));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFollowUp(@PathVariable Long id) {
         followUpService.deleteFollowUp(id);

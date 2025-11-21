@@ -13,6 +13,7 @@ public interface FollowUpService {
     Page<FollowUpDTO> getFollowUpsByPatientId(Long patientId, Pageable pageable);
     Page<FollowUpDTO> getAllFollowUps(Pageable pageable);
     List<FollowUpDTO> getTodaysFollowUps();
+    FollowUpDTO updateFollowUpStatus(Long id, String status);
     void deleteFollowUp(Long id);
     void sendReminders(); // Scheduled task
 }

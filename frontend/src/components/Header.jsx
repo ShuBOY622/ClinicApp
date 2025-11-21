@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FaBell, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import LanguageToggle from './LanguageToggle';
 
 const Header = () => {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Header = () => {
                 Dr. Ramesh Tarakh Clinic
             </h1>
             <div className="flex items-center space-x-4">
+                <LanguageToggle />
                 <button className="text-slate-500 hover:text-slate-700 transition-colors">
                     <FaBell className="h-6 w-6" />
                 </button>

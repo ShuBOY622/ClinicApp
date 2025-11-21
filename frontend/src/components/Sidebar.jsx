@@ -1,16 +1,18 @@
 import { Link, useLocation } from 'react-router-dom';
 import { FaUserInjured, FaPills, FaFilePrescription, FaCalendarAlt, FaHome, FaStethoscope } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 
 const Sidebar = () => {
     const location = useLocation();
+    const { t } = useTranslation();
 
     const navItems = [
-        { path: '/dashboard', label: 'Dashboard', icon: FaHome },
-        { path: '/patients', label: 'Patients', icon: FaUserInjured },
-        { path: '/medicines', label: 'Medicines', icon: FaPills },
-        { path: '/prescriptions', label: 'Prescriptions', icon: FaFilePrescription },
-        { path: '/follow-ups', label: 'Follow-ups', icon: FaCalendarAlt },
+        { path: '/dashboard', label: t('nav.dashboard'), icon: FaHome },
+        { path: '/patients', label: t('nav.patients'), icon: FaUserInjured },
+        { path: '/medicines', label: t('nav.medicines'), icon: FaPills },
+        { path: '/prescriptions', label: t('nav.prescriptions'), icon: FaFilePrescription },
+        { path: '/follow-ups', label: t('nav.followUps'), icon: FaCalendarAlt },
     ];
 
     return (

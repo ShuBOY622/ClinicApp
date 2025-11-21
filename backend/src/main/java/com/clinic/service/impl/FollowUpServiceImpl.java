@@ -91,6 +91,17 @@ public class FollowUpServiceImpl implements FollowUpService {
 
     @Override
     @Transactional
+    public FollowUpDTO updateFollowUpStatus(Long id, String status) {
+        FollowUp followUp = followUpRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Follow-up not found"));
+        
+        followUp.setStatus(status);
+        FollowUp updatedFollowUp = followUpRepository.save(followUp);
+        return mapToDTO(updatedFollowUp);
+    }
+
+    @Override
+    @Transactional
     public void deleteFollowUp(Long id) {
         if (!followUpRepository.existsById(id)) {
             throw new ResourceNotFoundException("Follow-up not found");

@@ -5,9 +5,12 @@ import { getPrescriptionsByPatient } from '../services/prescriptionService';
 import { getDietPlansByPatient } from '../services/dietPlanService';
 import { getFollowUpsByPatient } from '../services/followUpService';
 import { getDocumentsByPatient, uploadDocument, deleteDocument } from '../services/patientDocumentService';
-import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck } from 'react-icons/fa';
+import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTint, FaBirthdayCake } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
+import PrintablePrescription from '../components/PrintablePrescription';
 
 const PatientDetails = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -17,6 +20,7 @@ const PatientDetails = () => {
     const [followUps, setFollowUps] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showPrintPreview, setShowPrintPreview] = useState(null);
 
     const tabParam = searchParams.get('tab');
     const [activeTab, setActiveTab] = useState(tabParam || 'personal');
@@ -61,7 +65,7 @@ const PatientDetails = () => {
     }, [id]);
 
     const handleDelete = async () => {
-        if (window.confirm('Are you sure you want to delete this patient?')) {
+        if (window.confirm(t('patient.confirmDelete') || 'Are you sure you want to delete this patient?')) {
             try {
                 await deletePatient(id);
                 navigate('/patients');
@@ -71,110 +75,190 @@ const PatientDetails = () => {
         }
     };
 
-    if (loading) return <div className="text-center py-10">Loading...</div>;
-    if (!patient) return <div className="text-center py-10">Patient not found</div>;
+    const calculateAge = (dob) => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    if (loading) return <div className="text-center py-10 text-slate-600">{t('common.loading')}</div>;
+    if (!patient) return <div className="text-center py-10 text-slate-600">Patient not found</div>;
 
     const tabs = [
-        { id: 'personal', label: 'Personal Info', icon: FaUser },
-        { id: 'history', label: 'Medical History', icon: FaHistory },
-        { id: 'documents', label: 'Documents', icon: FaFileAlt },
-        { id: 'prescriptions', label: 'Prescriptions', icon: FaPills },
-        { id: 'diet', label: 'Diet Plans', icon: FaUtensils },
-        { id: 'followups', label: 'Follow Ups', icon: FaCalendarCheck },
+        { id: 'personal', label: t('patient.personalInfo'), icon: FaUser, color: 'from-blue-500 to-cyan-500' },
+        { id: 'history', label: t('patient.medicalHistory'), icon: FaHistory, color: 'from-purple-500 to-pink-500' },
+        { id: 'documents', label: 'Documents', icon: FaFileAlt, color: 'from-orange-500 to-red-500' },
+        { id: 'prescriptions', label: t('patient.prescriptions'), icon: FaPills, color: 'from-green-500 to-emerald-500' },
+        { id: 'diet', label: t('patient.dietPlans'), icon: FaUtensils, color: 'from-yellow-500 to-orange-500' },
+        { id: 'followups', label: t('patient.followUps'), icon: FaCalendarCheck, color: 'from-indigo-500 to-purple-500' },
     ];
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                    <Link to="/patients" className="text-slate-500 hover:text-slate-700 mr-4">
-                        <FaArrowLeft className="h-5 w-5" />
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Link
+                        to="/patients"
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    >
+                        <FaArrowLeft className="h-5 w-5 text-slate-600" />
                     </Link>
-                    <h2 className="text-2xl font-bold text-slate-800">Patient Details</h2>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
+                        Patient Details
+                    </h2>
                 </div>
-                <div className="space-x-2">
+                <div className="flex gap-2">
                     <Link
                         to={`/patients/edit/${id}`}
-                        className="bg-slate-100 text-slate-700 px-4 py-2 rounded-md hover:bg-slate-200 transition-colors inline-flex items-center"
+                        className="bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:shadow-lg transition-all inline-flex items-center gap-2"
                     >
-                        <FaEdit className="mr-2" /> Edit
+                        <FaEdit /> {t('common.edit')}
                     </Link>
                     <button
                         onClick={handleDelete}
-                        className="bg-red-50 text-red-600 px-4 py-2 rounded-md hover:bg-red-100 transition-colors inline-flex items-center"
+                        className="bg-gradient-to-r from-red-50 to-red-100 text-red-600 px-4 py-2 rounded-lg hover:shadow-lg transition-all inline-flex items-center gap-2"
                     >
-                        <FaTrash className="mr-2" /> Delete
+                        <FaTrash /> {t('common.delete')}
                     </button>
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-6 border-b border-slate-200 flex items-center">
-                    <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold">
-                        {patient.firstName.charAt(0)}
-                    </div>
-                    <div className="ml-6">
-                        <h3 className="text-xl font-bold text-slate-900">{patient.firstName} {patient.lastName}</h3>
-                        <p className="text-slate-500">{patient.gender} • {new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} years old</p>
-                        <p className="text-slate-500">{patient.phone}</p>
+            {/* Patient Header Card */}
+            <div className="bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-2xl shadow-lg border border-sky-200 overflow-hidden">
+                <div className="p-8">
+                    <div className="flex items-center gap-6">
+                        {/* Avatar */}
+                        <div className="relative">
+                            <div className="h-24 w-24 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg ring-4 ring-white">
+                                {patient.firstName.charAt(0)}{patient.lastName.charAt(0)}
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 h-8 w-8 bg-green-500 rounded-full border-4 border-white"></div>
+                        </div>
+
+                        {/* Patient Info */}
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                                {patient.firstName} {patient.lastName}
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div className="flex items-center gap-2 text-slate-600">
+                                    <FaBirthdayCake className="text-sky-500" />
+                                    <span>{calculateAge(patient.dateOfBirth)} years • {patient.gender}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-slate-600">
+                                    <FaPhone className="text-sky-500" />
+                                    <span>{patient.phone}</span>
+                                </div>
+                                {patient.bloodGroup && (
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                        <FaTint className="text-red-500" />
+                                        <span className="font-semibold">{patient.bloodGroup}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Quick Stats */}
+                        <div className="hidden lg:flex gap-4">
+                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center min-w-[100px] shadow-md">
+                                <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                    {prescriptions.length}
+                                </div>
+                                <div className="text-xs text-slate-600 mt-1">Prescriptions</div>
+                            </div>
+                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center min-w-[100px] shadow-md">
+                                <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                    {followUps.length}
+                                </div>
+                                <div className="text-xs text-slate-600 mt-1">Follow-ups</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div className="border-b border-slate-200">
-                    <nav className="flex -mb-px">
+            {/* Tabs */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                {/* Tab Navigation */}
+                <div className="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-sky-50">
+                    <nav className="flex overflow-x-auto">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id)}
-                                className={`group inline-flex items-center px-6 py-4 border-b-2 font-medium text-sm ${activeTab === tab.id
-                                    ? 'border-primary text-primary'
-                                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                                className={`group relative flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap transition-all ${activeTab === tab.id
+                                        ? 'text-sky-600'
+                                        : 'text-slate-600 hover:text-slate-900'
                                     }`}
                             >
-                                <tab.icon className={`-ml-0.5 mr-2 h-5 w-5 ${activeTab === tab.id ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500'
+                                <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? 'text-sky-600' : 'text-slate-400 group-hover:text-slate-600'
                                     }`} />
                                 {tab.label}
+                                {activeTab === tab.id && (
+                                    <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${tab.color} rounded-t-full`}></div>
+                                )}
                             </button>
                         ))}
                     </nav>
                 </div>
 
+                {/* Tab Content */}
                 <div className="p-6">
+                    {/* Personal Info Tab */}
                     {activeTab === 'personal' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 className="text-sm font-medium text-slate-500">Email</h4>
-                                <p className="mt-1 text-sm text-slate-900">{patient.email || 'N/A'}</p>
+                            <InfoCard icon={FaEnvelope} label="Email" value={patient.email || 'N/A'} />
+                            <InfoCard icon={FaTint} label={t('patient.bloodGroup')} value={patient.bloodGroup || 'N/A'} />
+                            <InfoCard icon={FaBirthdayCake} label="Date of Birth" value={new Date(patient.dateOfBirth).toLocaleDateString()} />
+                            <InfoCard icon={FaPhone} label={t('common.phone')} value={patient.phone} />
+                            <div className="md:col-span-2">
+                                <InfoCard icon={FaMapMarkerAlt} label={t('common.address')} value={patient.address || 'N/A'} />
                             </div>
-                            <div>
-                                <h4 className="text-sm font-medium text-slate-500">Blood Group</h4>
-                                <p className="mt-1 text-sm text-slate-900">{patient.bloodGroup || 'N/A'}</p>
-                            </div>
-                            <div className="col-span-2">
-                                <h4 className="text-sm font-medium text-slate-500">Address</h4>
-                                <p className="mt-1 text-sm text-slate-900">{patient.address || 'N/A'}</p>
-                            </div>
+                            {patient.allergies && (
+                                <div className="md:col-span-2">
+                                    <InfoCard icon={FaHistory} label={t('patient.allergies')} value={patient.allergies} />
+                                </div>
+                            )}
+                            {patient.chronicDiseases && (
+                                <div className="md:col-span-2">
+                                    <InfoCard icon={FaHistory} label={t('patient.chronicDiseases')} value={patient.chronicDiseases} />
+                                </div>
+                            )}
                         </div>
                     )}
+
+                    {/* Medical History Tab */}
                     {activeTab === 'history' && (
-                        <div>
-                            <h4 className="text-sm font-medium text-slate-500 mb-2">Medical History</h4>
-                            <p className="text-sm text-slate-900 whitespace-pre-wrap">{patient.medicalHistory || 'No medical history recorded.'}</p>
+                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+                            <h4 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                                {t('patient.medicalHistory')}
+                            </h4>
+                            <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
+                                {patient.medicalHistory || 'No medical history recorded.'}
+                            </p>
                         </div>
                     )}
-                    {/* Placeholders for other tabs */}
+
+                    {/* Documents Tab */}
                     {activeTab === 'documents' && (
-                        <div>
-                            <div className="mb-6 p-4 bg-slate-50 rounded-md border border-slate-200">
-                                <h4 className="text-sm font-medium text-slate-700 mb-2">Upload Document</h4>
-                                <div className="flex gap-2">
-                                    <input type="file" id="fileInput" className="block w-full text-sm text-slate-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-primary/10 file:text-primary
-                    hover:file:bg-primary/20
-                  "/>
+                        <div className="space-y-6">
+                            {/* Upload Section */}
+                            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-200">
+                                <h4 className="text-lg font-semibold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+                                    <FaUpload /> Upload Document
+                                </h4>
+                                <div className="flex gap-3">
+                                    <input
+                                        type="file"
+                                        id="fileInput"
+                                        className="flex-1 text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-orange-500 file:to-red-600 file:text-white hover:file:shadow-lg file:transition-all"
+                                    />
                                     <button
                                         onClick={async () => {
                                             const fileInput = document.getElementById('fileInput');
@@ -194,30 +278,33 @@ const PatientDetails = () => {
                                             }
                                         }}
                                         disabled={uploading}
-                                        className="bg-primary text-white px-4 py-2 rounded-md hover:bg-sky-600 transition-colors disabled:opacity-50"
+                                        className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 font-medium"
                                     >
                                         {uploading ? 'Uploading...' : 'Upload'}
                                     </button>
                                 </div>
                             </div>
 
+                            {/* Documents Grid */}
                             {documents.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {documents.map((doc) => (
-                                        <div key={doc.id} className="border border-slate-200 rounded-md p-4 flex flex-col justify-between">
-                                            <div className="flex items-start justify-between mb-2">
-                                                <div className="overflow-hidden">
-                                                    <p className="font-medium text-slate-900 truncate" title={doc.fileName}>{doc.fileName}</p>
-                                                    <p className="text-xs text-slate-500">{doc.fileType}</p>
+                                        <div key={doc.id} className="bg-white rounded-xl p-4 border border-slate-200 hover:shadow-lg transition-all group">
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div className="flex-1 overflow-hidden">
+                                                    <p className="font-medium text-slate-900 truncate" title={doc.fileName}>
+                                                        {doc.fileName}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 mt-1">{doc.fileType}</p>
                                                 </div>
-                                                <FaFileAlt className="text-slate-400 flex-shrink-0 ml-2" />
+                                                <FaFileAlt className="text-orange-400 text-2xl flex-shrink-0 ml-2" />
                                             </div>
-                                            <div className="flex justify-end space-x-2 mt-2">
+                                            <div className="flex justify-end gap-2">
                                                 <a
                                                     href={doc.fileDownloadUri}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-primary hover:text-sky-700 p-1"
+                                                    className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                                                     title="Download"
                                                 >
                                                     <FaDownload />
@@ -232,7 +319,7 @@ const PatientDetails = () => {
                                                             } catch (e) { console.error(e); }
                                                         }
                                                     }}
-                                                    className="text-red-400 hover:text-red-600 p-1"
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Delete"
                                                 >
                                                     <FaTrash />
@@ -242,111 +329,185 @@ const PatientDetails = () => {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-500">No documents uploaded.</p>
+                                <div className="text-center py-12 text-slate-500">
+                                    <FaFileAlt className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                                    <p>No documents uploaded yet.</p>
+                                </div>
                             )}
                         </div>
                     )}
+
+                    {/* Prescriptions Tab */}
                     {activeTab === 'prescriptions' && (
-                        <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="text-sm font-medium text-slate-500">Prescriptions</h4>
-                                <Link to={`/prescriptions/new?patientId=${id}`} className="text-sm text-primary hover:underline flex items-center">
-                                    <FaPlus className="mr-1" /> Add Prescription
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h4 className="text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                    {t('patient.prescriptions')}
+                                </h4>
+                                <Link
+                                    to={`/prescriptions/new?patientId=${id}`}
+                                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all inline-flex items-center gap-2"
+                                >
+                                    <FaPlus /> Add Prescription
                                 </Link>
                             </div>
                             {prescriptions.length > 0 ? (
                                 <div className="space-y-4">
                                     {prescriptions.map((prescription) => (
-                                        <div key={prescription.id} className="border border-slate-200 rounded-md p-4">
-                                            <div className="flex justify-between mb-2">
-                                                <span className="font-medium text-slate-900">{prescription.diagnosis}</span>
-                                                <span className="text-sm text-slate-500">{new Date(prescription.prescriptionDate).toLocaleDateString()}</span>
+                                        <div key={prescription.id} className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 hover:shadow-lg transition-all">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h5 className="font-bold text-slate-900 text-lg">{prescription.diagnosis}</h5>
+                                                    <p className="text-sm text-slate-600 mt-1">
+                                                        {new Date(prescription.prescriptionDate).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={() => setShowPrintPreview(showPrintPreview === prescription.id ? null : prescription.id)}
+                                                    className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all text-sm"
+                                                >
+                                                    {showPrintPreview === prescription.id ? 'Hide Print' : t('prescription.printPrescription')}
+                                                </button>
                                             </div>
-                                            <div className="text-sm text-slate-600 mb-2">{prescription.notes}</div>
-                                            <div className="space-y-1">
+                                            {prescription.notes && (
+                                                <p className="text-slate-700 mb-4 bg-white/50 p-3 rounded-lg">{prescription.notes}</p>
+                                            )}
+                                            <div className="space-y-2">
+                                                <h6 className="font-semibold text-slate-700 text-sm">Medicines:</h6>
                                                 {prescription.medicines.map((med, idx) => (
-                                                    <div key={idx} className="text-sm bg-slate-50 p-2 rounded">
-                                                        <span className="font-medium">{med.medicineName}</span> - {med.dosage} ({med.frequency}) for {med.duration}
+                                                    <div key={idx} className="bg-white/80 backdrop-blur-sm p-3 rounded-lg flex justify-between items-center">
+                                                        <div>
+                                                            <span className="font-semibold text-slate-900">{med.medicineName}</span>
+                                                            <p className="text-sm text-slate-600 mt-1">
+                                                                {med.dosage} • {med.frequency} • {med.duration}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-sm text-slate-500">No prescriptions found.</p>
-                            )}
-                        </div>
-                    )}
-                    {activeTab === 'diet' && (
-                        <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="text-sm font-medium text-slate-500">Diet Plans</h4>
-                                <Link to={`/diet-plans/new?patientId=${id}`} className="text-sm text-primary hover:underline flex items-center">
-                                    <FaPlus className="mr-1" /> Add Diet Plan
-                                </Link>
-                            </div>
-                            {dietPlans.length > 0 ? (
-                                <div className="space-y-4">
-                                    {dietPlans.map((plan) => (
-                                        <div key={plan.id} className="border border-slate-200 rounded-md p-4">
-                                            <div className="flex justify-between mb-2">
-                                                <span className="font-medium text-slate-900">
-                                                    {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
-                                                </span>
-                                                <Link to={`/diet-plans/edit/${plan.id}`} className="text-sm text-primary hover:underline">Edit</Link>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                                <div><span className="font-medium">Breakfast:</span> {plan.breakfast}</div>
-                                                <div><span className="font-medium">Lunch:</span> {plan.lunch}</div>
-                                                <div><span className="font-medium">Dinner:</span> {plan.dinner}</div>
-                                            </div>
-                                            {plan.instructions && (
-                                                <div className="mt-2 text-sm text-slate-600">
-                                                    <span className="font-medium">Instructions:</span> {plan.instructions}
+                                            {showPrintPreview === prescription.id && (
+                                                <div className="mt-4 border-t border-green-300 pt-4">
+                                                    <PrintablePrescription
+                                                        prescription={prescription}
+                                                        patient={patient}
+                                                    />
                                                 </div>
                                             )}
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-500">No diet plans found.</p>
+                                <div className="text-center py-12 text-slate-500">
+                                    <FaPills className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                                    <p>No prescriptions found.</p>
+                                </div>
                             )}
                         </div>
                     )}
+
+                    {/* Diet Plans Tab */}
+                    {activeTab === 'diet' && (
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h4 className="text-lg font-semibold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                                    {t('patient.dietPlans')}
+                                </h4>
+                                <Link
+                                    to={`/diet-plans/new?patientId=${id}`}
+                                    className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all inline-flex items-center gap-2"
+                                >
+                                    <FaPlus /> Add Diet Plan
+                                </Link>
+                            </div>
+                            {dietPlans.length > 0 ? (
+                                <div className="space-y-4">
+                                    {dietPlans.map((plan) => (
+                                        <div key={plan.id} className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200 hover:shadow-lg transition-all">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h5 className="font-bold text-slate-900">
+                                                        {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
+                                                    </h5>
+                                                </div>
+                                                <Link
+                                                    to={`/diet-plans/edit/${plan.id}`}
+                                                    className="text-sm text-sky-600 hover:text-sky-800 font-medium"
+                                                >
+                                                    Edit
+                                                </Link>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <MealCard icon={FaUtensils} label="Breakfast" value={plan.breakfast} color="from-yellow-400 to-orange-400" />
+                                                <MealCard icon={FaUtensils} label="Lunch" value={plan.lunch} color="from-orange-400 to-red-400" />
+                                                <MealCard icon={FaUtensils} label="Dinner" value={plan.dinner} color="from-red-400 to-pink-400" />
+                                            </div>
+                                            {plan.instructions && (
+                                                <div className="mt-4 bg-white/50 p-3 rounded-lg">
+                                                    <span className="font-semibold text-slate-700">Instructions:</span>
+                                                    <p className="text-slate-600 mt-1">{plan.instructions}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12 text-slate-500">
+                                    <FaUtensils className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                                    <p>No diet plans found.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Follow-ups Tab */}
                     {activeTab === 'followups' && (
-                        <div>
-                            <div className="flex justify-between items-center mb-4">
-                                <h4 className="text-sm font-medium text-slate-500">Follow Ups</h4>
-                                <Link to={`/follow-ups/new?patientId=${id}`} className="text-sm text-primary hover:underline flex items-center">
-                                    <FaPlus className="mr-1" /> Add Follow Up
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h4 className="text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                    {t('patient.followUps')}
+                                </h4>
+                                <Link
+                                    to={`/follow-ups/new?patientId=${id}`}
+                                    className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all inline-flex items-center gap-2"
+                                >
+                                    <FaPlus /> Add Follow Up
                                 </Link>
                             </div>
                             {followUps.length > 0 ? (
                                 <div className="space-y-4">
                                     {followUps.map((followUp) => (
-                                        <div key={followUp.id} className="border border-slate-200 rounded-md p-4 flex justify-between items-center">
-                                            <div>
-                                                <div className="flex items-center mb-1">
-                                                    <FaCalendarCheck className="text-slate-400 mr-2" />
-                                                    <span className="font-medium text-slate-900">
-                                                        {new Date(followUp.followUpDate).toLocaleString()}
-                                                    </span>
-                                                    <span className={`ml-3 px-2 py-0.5 rounded-full text-xs ${followUp.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                                                        followUp.status === 'MISSED' ? 'bg-red-100 text-red-800' :
-                                                            'bg-yellow-100 text-yellow-800'
-                                                        }`}>
-                                                        {followUp.status}
-                                                    </span>
+                                        <div key={followUp.id} className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200 hover:shadow-lg transition-all">
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <FaCalendarCheck className="text-indigo-500 text-xl" />
+                                                        <span className="font-bold text-slate-900">
+                                                            {new Date(followUp.followUpDate).toLocaleString()}
+                                                        </span>
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${followUp.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                                                                followUp.status === 'Missed' ? 'bg-red-100 text-red-800' :
+                                                                    'bg-yellow-100 text-yellow-800'
+                                                            }`}>
+                                                            {followUp.status}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-slate-700 ml-9">{followUp.reason}</p>
                                                 </div>
-                                                <p className="text-sm text-slate-600">{followUp.reason}</p>
+                                                <Link
+                                                    to={`/follow-ups/edit/${followUp.id}`}
+                                                    className="text-sm text-sky-600 hover:text-sky-800 font-medium ml-4"
+                                                >
+                                                    Edit
+                                                </Link>
                                             </div>
-                                            <Link to={`/follow-ups/edit/${followUp.id}`} className="text-sm text-primary hover:underline">Edit</Link>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-500">No follow-ups recorded.</p>
+                                <div className="text-center py-12 text-slate-500">
+                                    <FaCalendarCheck className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                                    <p>No follow-ups recorded.</p>
+                                </div>
                             )}
                         </div>
                     )}
@@ -355,5 +516,32 @@ const PatientDetails = () => {
         </div>
     );
 };
+
+// Helper Components
+const InfoCard = ({ icon: Icon, label, value }) => (
+    <div className="bg-gradient-to-br from-slate-50 to-sky-50 rounded-xl p-4 border border-slate-200">
+        <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg text-white">
+                <Icon className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+                <p className="text-xs text-slate-500 font-medium">{label}</p>
+                <p className="text-sm text-slate-900 font-semibold mt-0.5">{value}</p>
+            </div>
+        </div>
+    </div>
+);
+
+const MealCard = ({ icon: Icon, label, value, color }) => (
+    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-slate-200">
+        <div className="flex items-center gap-2 mb-2">
+            <div className={`p-2 bg-gradient-to-r ${color} rounded-lg text-white`}>
+                <Icon className="h-4 w-4" />
+            </div>
+            <span className="font-semibold text-slate-700 text-sm">{label}</span>
+        </div>
+        <p className="text-slate-600 text-sm">{value}</p>
+    </div>
+);
 
 export default PatientDetails;

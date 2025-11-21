@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import './i18n'; // Initialize i18n
 import PrivateRoute from './components/PrivateRoute';
 import LandingPage from './pages/LandingPage';
 import Layout from './components/Layout';

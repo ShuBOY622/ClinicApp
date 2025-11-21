@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getTodayFollowUps, getFollowUps, updateFollowUpStatus } from '../services/followUpService';
-import { FaCheckCircle, FaClock, FaCalendarCheck } from 'react-icons/fa';
+import { FaCheckCircle, FaClock, FaCalendarCheck, FaUser, FaPhone, FaPlus, FaCalendarAlt } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 const FollowUpList = () => {
+    const { t } = useTranslation();
     const [todayFollowUps, setTodayFollowUps] = useState([]);
     const [allFollowUps, setAllFollowUps] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,71 +41,188 @@ const FollowUpList = () => {
         }
     };
 
+    const getStatusConfig = (status) => {
+        const configs = {
+            'Completed': {
+                bg: 'from-green-500 to-emerald-600',
+                badge: 'bg-green-100 text-green-800',
+                icon: FaCheckCircle,
+            },
+            'Pending': {
+                bg: 'from-yellow-500 to-orange-600',
+                badge: 'bg-yellow-100 text-yellow-800',
+                icon: FaClock,
+            },
+            'Missed': {
+                bg: 'from-red-500 to-pink-600',
+                badge: 'bg-red-100 text-red-800',
+                icon: FaClock,
+            },
+        };
+        return configs[status] || configs['Pending'];
+    };
+
     const renderList = (list) => {
         if (list.length === 0) {
-            return <div className="text-center py-10 text-slate-500">No follow-ups found.</div>;
+            return (
+                <div className="text-center py-20">
+                    <FaCalendarCheck className="mx-auto h-16 w-16 text-slate-300 mb-4" />
+                    <p className="text-slate-500 text-lg">{t('followUp.noFollowUps')}</p>
+                </div>
+            );
         }
 
         return (
-            <div className="space-y-4">
-                {list.map((followUp) => (
-                    <div key={followUp.id} className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex justify-between items-center">
-                        <div>
-                            <div className="font-bold text-slate-900">
-                                {followUp.patientName || `Patient ID: ${followUp.patientId}`}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {list.map((followUp) => {
+                    const statusConfig = getStatusConfig(followUp.status);
+                    const StatusIcon = statusConfig.icon;
+
+                    return (
+                        <div
+                            key={followUp.id}
+                            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all group"
+                        >
+                            {/* Card Header */}
+                            <div className={`bg-gradient-to-r ${statusConfig.bg} p-4`}>
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 text-white mb-2">
+                                            <FaUser className="text-white/80" />
+                                            <h3 className="font-bold text-lg">
+                                                {followUp.patientName || `Patient ID: ${followUp.patientId}`}
+                                            </h3>
+                                        </div>
+                                        {followUp.patientPhone && (
+                                            <div className="flex items-center gap-2 text-white/90 text-sm">
+                                                <FaPhone className="text-white/70" />
+                                                <span>{followUp.patientPhone}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <StatusIcon className="text-white/80 text-2xl" />
+                                </div>
                             </div>
-                            <div className="text-sm text-slate-600">{followUp.reason}</div>
-                            <div className="text-xs text-slate-500 flex items-center mt-1">
-                                <FaCalendarCheck className="mr-1" /> {new Date(followUp.followUpDate).toLocaleDateString()}
-                                <span className={`ml-3 px-2 py-0.5 rounded-full text-xs ${followUp.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                                        followUp.status === 'Missed' ? 'bg-red-100 text-red-800' :
-                                            'bg-yellow-100 text-yellow-800'
-                                    }`}>
-                                    {followUp.status}
-                                </span>
+
+                            {/* Card Body */}
+                            <div className="p-4 space-y-4">
+                                {/* Date & Time */}
+                                <div className="flex items-center gap-3">
+                                    <div className="p-3 bg-gradient-to-br from-sky-100 to-blue-100 rounded-xl">
+                                        <FaCalendarAlt className="text-sky-600 text-lg" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">Follow-up Date</p>
+                                        <p className="font-semibold text-slate-900">
+                                            {new Date(followUp.followUpDate).toLocaleDateString()}
+                                        </p>
+                                        <p className="text-xs text-slate-600">
+                                            {new Date(followUp.followUpDate).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Reason */}
+                                <div className="bg-gradient-to-br from-slate-50 to-sky-50 p-3 rounded-xl">
+                                    <p className="text-xs text-slate-500 mb-1">Reason</p>
+                                    <p className="text-sm text-slate-700 font-medium">{followUp.reason}</p>
+                                </div>
+
+                                {/* Status Badge */}
+                                <div className="flex items-center justify-between">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.badge}`}>
+                                        {followUp.status}
+                                    </span>
+                                    {followUp.reminderSent && (
+                                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                                            <FaCheckCircle className="text-green-500" />
+                                            Reminder Sent
+                                        </span>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex space-x-2">
+
+                            {/* Card Footer */}
                             {followUp.status !== 'Completed' && (
-                                <button
-                                    onClick={() => handleStatusChange(followUp.id, 'Completed')}
-                                    className="text-green-600 hover:bg-green-50 p-2 rounded-full"
-                                    title="Mark as Completed"
-                                >
-                                    <FaCheckCircle size={20} />
-                                </button>
+                                <div className="px-4 pb-4">
+                                    <button
+                                        onClick={() => handleStatusChange(followUp.id, 'Completed')}
+                                        className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 font-medium"
+                                    >
+                                        <FaCheckCircle /> {t('followUp.markCompleted')}
+                                    </button>
+                                </div>
                             )}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         );
     };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-slate-800">Follow-ups</h2>
-                <div className="flex bg-slate-100 p-1 rounded-md">
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
+                        {t('followUp.title')}
+                    </h2>
+                    <p className="text-slate-600 mt-1">Track and manage patient follow-ups</p>
+                </div>
+                <Link
+                    to="/follow-ups/new"
+                    className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-3 rounded-xl flex items-center gap-2 hover:shadow-lg transition-all"
+                >
+                    <FaPlus /> Add Follow-up
+                </Link>
+            </div>
+
+            {/* View Toggle */}
+            <div className="bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 p-6 rounded-2xl shadow-lg border border-sky-200">
+                <div className="flex gap-4">
                     <button
                         onClick={() => setView('today')}
-                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'today' ? 'bg-white text-primary shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                        className={`flex-1 px-6 py-4 rounded-xl transition-all font-medium flex items-center justify-center gap-2 ${view === 'today'
+                                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                : 'bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white border border-slate-200'
                             }`}
                     >
-                        Today
+                        <FaClock className="text-lg" />
+                        <div className="text-left">
+                            <div className="text-sm">{t('followUp.todayFollowUps')}</div>
+                            {view === 'today' && (
+                                <div className="text-xs opacity-90">{todayFollowUps.length} appointments</div>
+                            )}
+                        </div>
                     </button>
                     <button
                         onClick={() => setView('all')}
-                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'all' ? 'bg-white text-primary shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                        className={`flex-1 px-6 py-4 rounded-xl transition-all font-medium flex items-center justify-center gap-2 ${view === 'all'
+                                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg transform scale-105'
+                                : 'bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white border border-slate-200'
                             }`}
                     >
-                        All Upcoming
+                        <FaCalendarCheck className="text-lg" />
+                        <div className="text-left">
+                            <div className="text-sm">{t('followUp.allFollowUps')}</div>
+                            {view === 'all' && (
+                                <div className="text-xs opacity-90">{allFollowUps.length} total</div>
+                            )}
+                        </div>
                     </button>
                 </div>
             </div>
 
+            {/* Content */}
             {loading ? (
-                <div className="text-center py-10">Loading...</div>
+                <div className="text-center py-20 text-slate-600">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-sky-500 border-t-transparent"></div>
+                    <p className="mt-4">{t('common.loading')}</p>
+                </div>
             ) : (
                 renderList(view === 'today' ? todayFollowUps : allFollowUps)
             )}
