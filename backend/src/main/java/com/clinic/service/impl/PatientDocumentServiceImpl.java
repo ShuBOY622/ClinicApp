@@ -65,12 +65,47 @@ public class PatientDocumentServiceImpl implements PatientDocumentService {
         patientDocumentRepository.delete(document);
     }
 
+    @Override
+    public PatientDocumentDTO updateDocument(Long id, String newFileName) {
+        PatientDocument document = patientDocumentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found with id: " + id));
+        document.setFileName(newFileName);
+        PatientDocument savedDoc = patientDocumentRepository.save(document);
+        return mapToDTO(savedDoc);
+    }
+
+    @Override
+    public PatientDocumentDTO getDocumentById(Long id) {
+        PatientDocument document = patientDocumentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found with id: " + id));
+        return mapToDTO(document);
+    }
+
+    @Override
+    public org.springframework.core.io.Resource downloadDocument(Long id) {
+        PatientDocument document = patientDocumentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found with id: " + id));
+        
+        // Extract original filename from URI
+        // URI format: .../api/files/download/{fileName}
+        String uri = document.getFileDownloadUri();
+        String originalFileName = uri.substring(uri.lastIndexOf("/") + 1);
+        
+        return fileStorageService.loadFileAsResource(originalFileName);
+    }
+
     private PatientDocumentDTO mapToDTO(PatientDocument document) {
         PatientDocumentDTO dto = new PatientDocumentDTO();
         dto.setId(document.getId());
         dto.setFileName(document.getFileName());
         dto.setFileType(document.getFileType());
-        dto.setFileDownloadUri(document.getFileDownloadUri());
+        // Use the new download endpoint that respects the renamed file
+        String downloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/patient-documents/")
+                .path(document.getId().toString())
+                .path("/download")
+                .toUriString();
+        dto.setFileDownloadUri(downloadUri);
         dto.setDescription(document.getDescription());
         dto.setPatientId(document.getPatient().getId());
         return dto;

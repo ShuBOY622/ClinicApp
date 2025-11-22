@@ -4,73 +4,67 @@
 /* Print-specific styles */
 @media print {
 
-    /* Reset everything */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+    /* Hide all non-prescription elements */
+    .no-print,
+    nav,
+    header,
+    footer,
+    aside,
+    .sidebar,
+    button:not(.prescription-print-content button),
+    [class*="nav"],
+    [class*="menu"],
+    [class*="sidebar"],
+    [class*="header"]:not(.prescription-header),
+    [class*="footer"] {
+        display: none !important;
     }
 
-    /* Hide everything except prescription */
-    body * {
-        visibility: hidden;
-    }
-
-    .prescription-print-content,
-    .prescription-print-content * {
-        visibility: visible;
-    }
-
-    /* Proper positioning for print */
-    .prescription-print-content {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 20mm;
-        background: white;
-    }
-
-    .no-print {
+    /* Hide everything except the prescription container */
+    body>*:not(.printable-prescription-container) {
         display: none !important;
     }
 
     /* Page setup */
     @page {
         size: A4;
-        margin: 0;
+        margin: 15mm;
     }
 
-    /* Ensure proper layout */
+    /* Reset body */
     body {
         margin: 0;
         padding: 0;
+        background: white;
     }
 
-    /* Remove any transforms or positioning from parent elements */
+    /* Container styles */
     .printable-prescription-container {
-        position: static;
+        width: 100%;
+        max-width: none;
         margin: 0;
         padding: 0;
-        max-width: none;
+        display: block !important;
     }
 
-    /* Ensure text is black for printing */
-    .prescription-print-content,
+    .prescription-print-content {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: white;
+        color: #000;
+        display: block !important;
+    }
+
+    /* Ensure text is black */
     .prescription-print-content * {
         color: #000 !important;
         background: white !important;
-    }
-
-    /* Remove shadows and gradients */
-    .prescription-print-content * {
         box-shadow: none !important;
         text-shadow: none !important;
-        background-image: none !important;
     }
 
-    /* Ensure borders print */
+    /* Borders */
     .prescription-header {
         border-bottom: 2px solid #000 !important;
     }
@@ -79,16 +73,30 @@
         border-top: 1px solid #000 !important;
     }
 
-    /* Prevent page breaks inside important sections */
+    .section-title {
+        border-left: 3px solid #000 !important;
+    }
+
+    /* Page breaks */
     .prescription-section,
     .patient-info,
-    .prescription-header {
+    .details-grid,
+    .examination-grid {
         page-break-inside: avoid;
     }
 
+    .page-break-before {
+        page-break-before: always;
+    }
+
     /* Ensure proper spacing */
-    .prescription-print-content {
-        line-height: 1.6;
+    .prescription-section {
+        margin-bottom: 15px;
+    }
+
+    .detail-row,
+    .exam-row {
+        margin-bottom: 8px;
     }
 }
 
@@ -224,7 +232,9 @@
     flex: 1;
     border-bottom: 1px solid #000;
     margin: 0 10px;
-    height: 20px;
+    min-height: 20px;
+    padding: 2px 5px;
+    display: inline-block;
 }
 
 .medicine-list {

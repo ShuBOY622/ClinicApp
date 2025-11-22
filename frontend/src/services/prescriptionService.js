@@ -15,3 +15,10 @@ export const createPrescription = (prescriptionData) => {
 export const deletePrescription = (id) => {
     return api.delete(`/prescriptions/${id}`);
 };
+
+export const downloadPrescriptionPdf = async (prescriptionId) => {
+    const response = await api.get(`/prescriptions/${prescriptionId}/pdf`, {
+        responseType: 'blob'
+    });
+    return response.data;
+};

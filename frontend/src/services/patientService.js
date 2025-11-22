@@ -23,3 +23,9 @@ export const updatePatient = (id, patientData) => {
 export const deletePatient = (id) => {
     return api.delete(`/patients/${id}`);
 };
+
+export const downloadConsentForm = (id) => {
+    return api.get(`/patients/${id}/consent-form`, {
+        responseType: 'blob'
+    });
+};

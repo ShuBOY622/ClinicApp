@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { getPatientById, deletePatient, updatePatient } from '../services/patientService';
+import { getPatientById, deletePatient, updatePatient, downloadConsentForm } from '../services/patientService';
 import { getPrescriptionsByPatient } from '../services/prescriptionService';
 import { getDietPlansByPatient } from '../services/dietPlanService';
 import { getFollowUpsByPatient } from '../services/followUpService';
-import { getDocumentsByPatient, uploadDocument, deleteDocument } from '../services/patientDocumentService';
+import { getDocumentsByPatient, uploadDocument, deleteDocument, renameDocument } from '../services/patientDocumentService';
 import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTint, FaBirthdayCake, FaSave } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import PrintablePrescription from '../components/PrintablePrescription';
@@ -28,6 +28,8 @@ const PatientDetails = () => {
     const [editingHistory, setEditingHistory] = useState(false);
     const [medicalHistoryText, setMedicalHistoryText] = useState('');
     const [savingHistory, setSavingHistory] = useState(false);
+    const [renamingDocId, setRenamingDocId] = useState(null);
+    const [newDocName, setNewDocName] = useState('');
 
     useEffect(() => {
         if (tabParam) {
@@ -257,6 +259,28 @@ const PatientDetails = () => {
                                     <InfoCard icon={FaHistory} label={t('patient.chronicDiseases')} value={patient.chronicDiseases} />
                                 </div>
                             )}
+                            <div className="md:col-span-2 flex justify-end mt-4">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await downloadConsentForm(id);
+                                            const url = window.URL.createObjectURL(new Blob([response.data]));
+                                            const link = document.createElement('a');
+                                            link.href = url;
+                                            link.setAttribute('download', `consent_form_${id}.pdf`);
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            link.remove();
+                                        } catch (error) {
+                                            console.error('Error downloading consent form:', error);
+                                            alert('Failed to download consent form');
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                                >
+                                    <FaFileAlt /> Download Consent Form (Marathi)
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -383,38 +407,95 @@ const PatientDetails = () => {
                                         <div key={doc.id} className="bg-white rounded-xl p-4 border border-slate-200 hover:shadow-lg transition-all group">
                                             <div className="flex items-start justify-between mb-3">
                                                 <div className="flex-1 overflow-hidden">
-                                                    <p className="font-medium text-slate-900 truncate" title={doc.fileName}>
-                                                        {doc.fileName}
-                                                    </p>
+                                                    {renamingDocId === doc.id ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                type="text"
+                                                                value={newDocName}
+                                                                onChange={(e) => setNewDocName(e.target.value)}
+                                                                className="w-full p-1 border border-slate-300 rounded text-sm"
+                                                                autoFocus
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <p className="font-medium text-slate-900 truncate" title={doc.fileName}>
+                                                            {doc.fileName}
+                                                        </p>
+                                                    )}
                                                     <p className="text-xs text-slate-500 mt-1">{doc.fileType}</p>
                                                 </div>
                                                 <FaFileAlt className="text-orange-400 text-2xl flex-shrink-0 ml-2" />
                                             </div>
                                             <div className="flex justify-end gap-2">
-                                                <a
-                                                    href={doc.fileDownloadUri}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
-                                                    title="Download"
-                                                >
-                                                    <FaDownload />
-                                                </a>
-                                                <button
-                                                    onClick={async () => {
-                                                        if (window.confirm('Delete this document?')) {
-                                                            try {
-                                                                await deleteDocument(doc.id);
-                                                                const docResponse = await getDocumentsByPatient(id);
-                                                                setDocuments(docResponse.data);
-                                                            } catch (e) { console.error(e); }
-                                                        }
-                                                    }}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Delete"
-                                                >
-                                                    <FaTrash />
-                                                </button>
+                                                {renamingDocId === doc.id ? (
+                                                    <>
+                                                        <button
+                                                            onClick={async () => {
+                                                                try {
+                                                                    await renameDocument(doc.id, newDocName);
+                                                                    const docResponse = await getDocumentsByPatient(id);
+                                                                    setDocuments(docResponse.data);
+                                                                    setRenamingDocId(null);
+                                                                    setNewDocName('');
+                                                                } catch (error) {
+                                                                    console.error('Error renaming document:', error);
+                                                                    alert('Failed to rename document');
+                                                                }
+                                                            }}
+                                                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                            title="Save"
+                                                        >
+                                                            <FaSave />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setRenamingDocId(null);
+                                                                setNewDocName('');
+                                                            }}
+                                                            className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+                                                            title="Cancel"
+                                                        >
+                                                            <FaTrash className="transform rotate-45" />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <a
+                                                            href={doc.fileDownloadUri}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                                                            title="Download"
+                                                        >
+                                                            <FaDownload />
+                                                        </a>
+                                                        <button
+                                                            onClick={() => {
+                                                                setRenamingDocId(doc.id);
+                                                                setNewDocName(doc.fileName);
+                                                            }}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Rename"
+                                                        >
+                                                            <FaEdit />
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (window.confirm('Delete this document?')) {
+                                                                    try {
+                                                                        await deleteDocument(doc.id);
+                                                                        const docResponse = await getDocumentsByPatient(id);
+                                                                        setDocuments(docResponse.data);
+                                                                    } catch (e) { console.error(e); }
+                                                                }
+                                                            }}
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <FaTrash />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

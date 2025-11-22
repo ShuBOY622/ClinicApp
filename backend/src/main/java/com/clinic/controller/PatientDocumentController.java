@@ -36,4 +36,22 @@ public class PatientDocumentController {
         patientDocumentService.deleteDocument(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientDocumentDTO> updateDocument(
+            @PathVariable Long id,
+            @RequestParam("fileName") String fileName) {
+        return ResponseEntity.ok(patientDocumentService.updateDocument(id, fileName));
+    }
+
+    @GetMapping("/{id}/download")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadDocument(@PathVariable Long id) {
+        org.springframework.core.io.Resource resource = patientDocumentService.downloadDocument(id);
+        PatientDocumentDTO document = patientDocumentService.getDocumentById(id);
+        
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + document.getFileName() + "\"")
+                .body(resource);
+    }
 }

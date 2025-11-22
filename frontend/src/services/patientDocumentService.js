@@ -22,3 +22,7 @@ export const getDocumentsByPatient = (patientId) => {
 export const deleteDocument = (id) => {
     return api.delete(`/patient-documents/${id}`);
 };
+
+export const renameDocument = (id, newFileName) => {
+    return api.put(`/patient-documents/${id}?fileName=${encodeURIComponent(newFileName)}`);
+};

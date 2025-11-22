@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { FaPrint } from 'react-icons/fa';
+import { FaPrint, FaFilePdf } from 'react-icons/fa';
+import { downloadPrescriptionPdf } from '../services/prescriptionService';
 import './PrintablePrescription.css';
 
 const PrintablePrescription = ({ prescription, patient }) => {
@@ -8,6 +9,23 @@ const PrintablePrescription = ({ prescription, patient }) => {
 
     const handlePrint = () => {
         window.print();
+    };
+
+    const handleDownloadPdf = async () => {
+        try {
+            const pdfBlob = await downloadPrescriptionPdf(prescription.id);
+            const url = window.URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `prescription_${prescription.id}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+            alert('Failed to download PDF. Please try again.');
+        }
     };
 
     // Format date in Marathi or English
@@ -34,7 +52,14 @@ const PrintablePrescription = ({ prescription, patient }) => {
 
     return (
         <div className="printable-prescription-container">
-            <div className="no-print mb-4">
+            <div className="no-print mb-4 flex gap-3">
+                <button
+                    onClick={handleDownloadPdf}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all"
+                >
+                    <FaFilePdf />
+                    <span>Download PDF</span>
+                </button>
                 <button
                     onClick={handlePrint}
                     className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all"
