@@ -40,6 +40,31 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setNotes(prescriptionDTO.getNotes());
         prescription.setPrescriptionDate(LocalDateTime.now());
 
+        // Map patient details fields
+        prescription.setPatientAddress(prescriptionDTO.getPatientAddress());
+        prescription.setPatientOccupation(prescriptionDTO.getPatientOccupation());
+        prescription.setPatientMobileNumber(prescriptionDTO.getPatientMobileNumber());
+        prescription.setBodyType(prescriptionDTO.getBodyType());
+        prescription.setFavouriteTaste(prescriptionDTO.getFavouriteTaste());
+        prescription.setUrineDetails(prescriptionDTO.getUrineDetails());
+        prescription.setStoolDetails(prescriptionDTO.getStoolDetails());
+        prescription.setSleepDetails(prescriptionDTO.getSleepDetails());
+        prescription.setSweatDetails(prescriptionDTO.getSweatDetails());
+        prescription.setMenstrualDetails(prescriptionDTO.getMenstrualDetails());
+        prescription.setPastHistory(prescriptionDTO.getPastHistory());
+        prescription.setPreviousTreatment(prescriptionDTO.getPreviousTreatment());
+        prescription.setPreviousMedication(prescriptionDTO.getPreviousMedication());
+        prescription.setDailyRoutine(prescriptionDTO.getDailyRoutine());
+        prescription.setCurrentComplaints(prescriptionDTO.getCurrentComplaints());
+        prescription.setLiverExam(prescriptionDTO.getLiverExam());
+        prescription.setSpleenExam(prescriptionDTO.getSpleenExam());
+        prescription.setLowerAbdomenExam(prescriptionDTO.getLowerAbdomenExam());
+        prescription.setRightKidneyExam(prescriptionDTO.getRightKidneyExam());
+        prescription.setLeftKidneyExam(prescriptionDTO.getLeftKidneyExam());
+        prescription.setDiagnosisStatus(prescriptionDTO.getDiagnosisStatus());
+        prescription.setRightNavelPosition(prescriptionDTO.getRightNavelPosition());
+        prescription.setLeftNavelPosition(prescriptionDTO.getLeftNavelPosition());
+
         if (prescriptionDTO.getMedicines() != null) {
             for (PrescriptionMedicineDTO pmDTO : prescriptionDTO.getMedicines()) {
                 Medicine medicine = medicineRepository.findById(pmDTO.getMedicineId())
@@ -91,6 +116,31 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         dto.setDiagnosis(prescription.getDiagnosis());
         dto.setNotes(prescription.getNotes());
         dto.setPrescriptionDate(prescription.getPrescriptionDate());
+
+        // Map patient details fields
+        dto.setPatientAddress(prescription.getPatientAddress());
+        dto.setPatientOccupation(prescription.getPatientOccupation());
+        dto.setPatientMobileNumber(prescription.getPatientMobileNumber());
+        dto.setBodyType(prescription.getBodyType());
+        dto.setFavouriteTaste(prescription.getFavouriteTaste());
+        dto.setUrineDetails(prescription.getUrineDetails());
+        dto.setStoolDetails(prescription.getStoolDetails());
+        dto.setSleepDetails(prescription.getSleepDetails());
+        dto.setSweatDetails(prescription.getSweatDetails());
+        dto.setMenstrualDetails(prescription.getMenstrualDetails());
+        dto.setPastHistory(prescription.getPastHistory());
+        dto.setPreviousTreatment(prescription.getPreviousTreatment());
+        dto.setPreviousMedication(prescription.getPreviousMedication());
+        dto.setDailyRoutine(prescription.getDailyRoutine());
+        dto.setCurrentComplaints(prescription.getCurrentComplaints());
+        dto.setLiverExam(prescription.getLiverExam());
+        dto.setSpleenExam(prescription.getSpleenExam());
+        dto.setLowerAbdomenExam(prescription.getLowerAbdomenExam());
+        dto.setRightKidneyExam(prescription.getRightKidneyExam());
+        dto.setLeftKidneyExam(prescription.getLeftKidneyExam());
+        dto.setDiagnosisStatus(prescription.getDiagnosisStatus());
+        dto.setRightNavelPosition(prescription.getRightNavelPosition());
+        dto.setLeftNavelPosition(prescription.getLeftNavelPosition());
 
         if (prescription.getMedicines() != null) {
             dto.setMedicines(prescription.getMedicines().stream().map(pm -> {

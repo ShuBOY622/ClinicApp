@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { getPatientById, deletePatient } from '../services/patientService';
+import { getPatientById, deletePatient, updatePatient } from '../services/patientService';
 import { getPrescriptionsByPatient } from '../services/prescriptionService';
 import { getDietPlansByPatient } from '../services/dietPlanService';
 import { getFollowUpsByPatient } from '../services/followUpService';
 import { getDocumentsByPatient, uploadDocument, deleteDocument } from '../services/patientDocumentService';
-import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTint, FaBirthdayCake } from 'react-icons/fa';
+import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTint, FaBirthdayCake, FaSave } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import PrintablePrescription from '../components/PrintablePrescription';
 
@@ -25,6 +25,9 @@ const PatientDetails = () => {
     const tabParam = searchParams.get('tab');
     const [activeTab, setActiveTab] = useState(tabParam || 'personal');
     const [uploading, setUploading] = useState(false);
+    const [editingHistory, setEditingHistory] = useState(false);
+    const [medicalHistoryText, setMedicalHistoryText] = useState('');
+    const [savingHistory, setSavingHistory] = useState(false);
 
     useEffect(() => {
         if (tabParam) {
@@ -84,6 +87,30 @@ const PatientDetails = () => {
             age--;
         }
         return age;
+    };
+
+    const handleSaveMedicalHistory = async () => {
+        setSavingHistory(true);
+        try {
+            await updatePatient(id, {
+                ...patient,
+                medicalHistory: medicalHistoryText
+            });
+
+            // Update local state
+            setPatient({
+                ...patient,
+                medicalHistory: medicalHistoryText
+            });
+
+            setEditingHistory(false);
+            setMedicalHistoryText('');
+        } catch (error) {
+            console.error('Error updating medical history:', error);
+            alert('Failed to update medical history. Please try again.');
+        } finally {
+            setSavingHistory(false);
+        }
     };
 
     if (loading) return <div className="text-center py-10 text-slate-600">{t('common.loading')}</div>;
@@ -193,8 +220,8 @@ const PatientDetails = () => {
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id)}
                                 className={`group relative flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap transition-all ${activeTab === tab.id
-                                        ? 'text-sky-600'
-                                        : 'text-slate-600 hover:text-slate-900'
+                                    ? 'text-sky-600'
+                                    : 'text-slate-600 hover:text-slate-900'
                                     }`}
                             >
                                 <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? 'text-sky-600' : 'text-slate-400 group-hover:text-slate-600'
@@ -236,12 +263,76 @@ const PatientDetails = () => {
                     {/* Medical History Tab */}
                     {activeTab === 'history' && (
                         <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
-                            <h4 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-                                {t('patient.medicalHistory')}
-                            </h4>
-                            <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                                {patient.medicalHistory || 'No medical history recorded.'}
-                            </p>
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
+                                    <FaHistory />
+                                    {t('patient.medicalHistory')}
+                                </h4>
+                                {!editingHistory && (
+                                    <button
+                                        onClick={() => {
+                                            setEditingHistory(true);
+                                            setMedicalHistoryText(patient.medicalHistory || '');
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
+                                    >
+                                        <FaEdit /> Edit History
+                                    </button>
+                                )}
+                            </div>
+
+                            {editingHistory ? (
+                                <div className="space-y-4">
+                                    <textarea
+                                        value={medicalHistoryText}
+                                        onChange={(e) => setMedicalHistoryText(e.target.value)}
+                                        rows="10"
+                                        className="w-full p-4 border-2 border-purple-300 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
+                                        placeholder="Enter medical history, chronic diseases, allergies, past surgeries, etc."
+                                    />
+                                    <div className="flex gap-3 justify-end">
+                                        <button
+                                            onClick={() => {
+                                                setEditingHistory(false);
+                                                setMedicalHistoryText('');
+                                            }}
+                                            className="px-4 py-2 bg-white border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all font-medium"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleSaveMedicalHistory}
+                                            disabled={savingHistory}
+                                            className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all font-medium disabled:opacity-50 flex items-center gap-2"
+                                        >
+                                            <FaSave />
+                                            {savingHistory ? 'Saving...' : 'Save Changes'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-purple-200">
+                                    {patient.medicalHistory ? (
+                                        <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
+                                            {patient.medicalHistory}
+                                        </p>
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <FaHistory className="mx-auto h-12 w-12 text-purple-300 mb-3" />
+                                            <p className="text-slate-500 mb-4">No medical history recorded.</p>
+                                            <button
+                                                onClick={() => {
+                                                    setEditingHistory(true);
+                                                    setMedicalHistoryText('');
+                                                }}
+                                                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
+                                            >
+                                                Add Medical History
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -485,8 +576,8 @@ const PatientDetails = () => {
                                                             {new Date(followUp.followUpDate).toLocaleString()}
                                                         </span>
                                                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${followUp.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                                                                followUp.status === 'Missed' ? 'bg-red-100 text-red-800' :
-                                                                    'bg-yellow-100 text-yellow-800'
+                                                            followUp.status === 'Missed' ? 'bg-red-100 text-red-800' :
+                                                                'bg-yellow-100 text-yellow-800'
                                                             }`}>
                                                             {followUp.status}
                                                         </span>

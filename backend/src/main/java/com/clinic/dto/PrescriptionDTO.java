@@ -24,4 +24,41 @@ public class PrescriptionDTO {
     private String diagnosis;
     private String notes;
     private LocalDateTime prescriptionDate;
+
+    // Basic Information
+    private String patientAddress;
+    private String patientOccupation;
+    private String patientMobileNumber;
+
+    // Physical Characteristics
+    private String bodyType;
+    private String favouriteTaste;
+
+    // Daily Functions
+    private String urineDetails;
+    private String stoolDetails;
+    private String sleepDetails;
+    private String sweatDetails;
+    private String menstrualDetails;
+
+    // Medical History
+    private String pastHistory;
+    private String previousTreatment;
+    private String previousMedication;
+    private String dailyRoutine;
+
+    // Current Complaints
+    private String currentComplaints;
+
+    // Abdominal Examination
+    private String liverExam;
+    private String spleenExam;
+    private String lowerAbdomenExam;
+    private String rightKidneyExam;
+    private String leftKidneyExam;
+
+    // Diagnosis
+    private String diagnosisStatus;
+    private String rightNavelPosition;
+    private String leftNavelPosition;
 }

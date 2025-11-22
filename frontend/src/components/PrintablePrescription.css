@@ -251,3 +251,64 @@
     font-size: 14px;
     font-weight: 600;
 }
+
+/* Patient Details Sections */
+.details-grid {
+    margin-top: 10px;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 10px;
+    font-size: 14px;
+    align-items: flex-start;
+}
+
+.detail-row.full-width {
+    flex-direction: column;
+}
+
+.detail-row .label {
+    font-weight: 600;
+    min-width: 150px;
+    margin-right: 10px;
+}
+
+.detail-row .value {
+    flex: 1;
+    word-wrap: break-word;
+}
+
+.detail-row.full-width .label {
+    margin-bottom: 5px;
+}
+
+.detail-row.full-width .value {
+    padding-left: 10px;
+    border-left: 2px solid #e5e7eb;
+}
+
+/* Page break controls */
+.page-break-before {
+    page-break-before: always;
+}
+
+.page-break-after {
+    page-break-after: always;
+}
+
+@media print {
+    .page-break-before {
+        page-break-before: always;
+        margin-top: 0;
+        padding-top: 20px;
+    }
+
+    .details-grid {
+        page-break-inside: avoid;
+    }
+
+    .detail-row {
+        page-break-inside: avoid;
+    }
+}

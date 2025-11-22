@@ -214,8 +214,8 @@ const PrescriptionForm = () => {
                                             key={patient.id}
                                             onClick={() => selectPatient(patient)}
                                             className={`p-3 cursor-pointer border-b border-slate-100 last:border-0 ${idx === selectedPatientIndex
-                                                    ? 'bg-sky-100'
-                                                    : 'hover:bg-slate-50'
+                                                ? 'bg-sky-100'
+                                                : 'hover:bg-slate-50'
                                                 }`}
                                         >
                                             <p className="font-medium text-slate-900">{patient.firstName} {patient.lastName}</p>
@@ -227,6 +227,284 @@ const PrescriptionForm = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Patient Details Form - Only show if patient is selected */}
+                {selectedPatient && (
+                    <>
+                        {/* Basic Information Section */}
+                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
+                                Basic Information / मूलभूत माहिती
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Address / पत्ता
+                                    </label>
+                                    <textarea
+                                        {...register('patientAddress')}
+                                        rows="2"
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Occupation / व्यवसाय
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('patientOccupation')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Mobile Number / मोबाइल नंबर
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('patientMobileNumber')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Body Type / प्रकृती
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('bodyType')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Favourite Taste / आवडता रस
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('favouriteTaste')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Daily Functions Section */}
+                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
+                                Daily Functions / दैनंदिन कार्ये
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Urine / मूत्र
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('urineDetails')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Stool / दिष्ट / शौच
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('stoolDetails')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Sleep / निद्रा
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('sleepDetails')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Sweat / घाम
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('sweatDetails')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Menstrual Details / रज
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('menstrualDetails')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Medical History Section */}
+                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
+                                Medical History / वैद्यकीय इतिहास
+                            </h3>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Past History / पूर्व इतिहास
+                                    </label>
+                                    <textarea
+                                        {...register('pastHistory')}
+                                        rows="2"
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Previous Treatment / पूर्व वैद्यकीय उपचार
+                                    </label>
+                                    <textarea
+                                        {...register('previousTreatment')}
+                                        rows="2"
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Previous Medication / पूर्व औषधी उपचार
+                                    </label>
+                                    <textarea
+                                        {...register('previousMedication')}
+                                        rows="2"
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Daily Routine / दिनचर्या
+                                    </label>
+                                    <textarea
+                                        {...register('dailyRoutine')}
+                                        rows="2"
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Current Complaints Section */}
+                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
+                                Current Complaints / सध्याच्या तक्रारी
+                            </h3>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700">
+                                    Current Complaints / Symptoms / सध्याच्या तक्रारी / लक्षणे
+                                </label>
+                                <textarea
+                                    {...register('currentComplaints')}
+                                    rows="3"
+                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Abdominal Examination Section */}
+                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
+                                Abdominal Examination / उदर परीक्षण
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Liver / यकृत
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('liverExam')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Spleen / प्लीहा
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('spleenExam')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Lower Abdomen / अपानकक्षा
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('lowerAbdomenExam')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Right Kidney / दक्षिण वृक्क
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('rightKidneyExam')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Left Kidney / वाम वृक्क
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('leftKidneyExam')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Diagnosis / Status / युक्त
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('diagnosisStatus')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Right Navel Position / दक्षिण नाभि
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('rightNavelPosition')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700">
+                                        Left Navel Position / वाम नाभि
+                                    </label>
+                                    <input
+                                        type="text"
+                                        {...register('leftNavelPosition')}
+                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
 
                 {/* Diagnosis & Notes */}
                 <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
@@ -291,8 +569,8 @@ const PrescriptionForm = () => {
                                                     key={medicine.id}
                                                     onClick={() => selectMedicine(medicine, index)}
                                                     className={`p-2 cursor-pointer border-b border-slate-100 last:border-0 ${idx === selectedMedicineIndex
-                                                            ? 'bg-sky-100'
-                                                            : 'hover:bg-slate-50'
+                                                        ? 'bg-sky-100'
+                                                        : 'hover:bg-slate-50'
                                                         }`}
                                                 >
                                                     <p className="text-sm font-medium text-slate-900">{medicine.name}</p>
