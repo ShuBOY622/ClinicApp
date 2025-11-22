@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getPatientById, deletePatient, updatePatient, downloadConsentForm } from '../services/patientService';
 import { getPrescriptionsByPatient } from '../services/prescriptionService';
-import { getDietPlansByPatient } from '../services/dietPlanService';
+import { getDietPlansByPatient, downloadDietPlan } from '../services/dietPlanService';
 import { getFollowUpsByPatient } from '../services/followUpService';
 import { getDocumentsByPatient, uploadDocument, deleteDocument, renameDocument } from '../services/patientDocumentService';
 import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTint, FaBirthdayCake, FaSave } from 'react-icons/fa';
@@ -601,12 +601,20 @@ const PatientDetails = () => {
                                                         {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
                                                     </h5>
                                                 </div>
-                                                <Link
-                                                    to={`/diet-plans/edit/${plan.id}`}
-                                                    className="text-sm text-sky-600 hover:text-sky-800 font-medium"
-                                                >
-                                                    Edit
-                                                </Link>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => downloadDietPlan(plan.id)}
+                                                        className="text-sm text-green-600 hover:text-green-800 font-medium flex items-center gap-1"
+                                                    >
+                                                        <FaDownload /> PDF
+                                                    </button>
+                                                    <Link
+                                                        to={`/diet-plans/edit/${plan.id}`}
+                                                        className="text-sm text-sky-600 hover:text-sky-800 font-medium"
+                                                    >
+                                                        Edit
+                                                    </Link>
+                                                </div>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <MealCard icon={FaUtensils} label="Breakfast" value={plan.breakfast} color="from-yellow-400 to-orange-400" />

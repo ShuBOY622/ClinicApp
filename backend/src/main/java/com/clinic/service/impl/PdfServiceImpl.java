@@ -2,11 +2,15 @@ package com.clinic.service.impl;
 
 import com.clinic.dto.PrescriptionDTO;
 import com.clinic.exception.ResourceNotFoundException;
+import com.clinic.model.DietPlan;
 import com.clinic.model.Patient;
 import com.clinic.model.Prescription;
+import com.clinic.repository.DietPlanRepository;
 import com.clinic.repository.PatientRepository;
 import com.clinic.repository.PrescriptionRepository;
 import com.clinic.service.PdfService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
@@ -21,6 +25,8 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.Iterator;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +34,8 @@ public class PdfServiceImpl implements PdfService {
 
     private final PrescriptionRepository prescriptionRepository;
     private final PatientRepository patientRepository;
+    private final DietPlanRepository dietPlanRepository;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -56,6 +64,16 @@ public class PdfServiceImpl implements PdfService {
         return generatePdfFromHtml(html);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] generateDietPlanPdf(Long dietPlanId) throws Exception {
+        DietPlan dietPlan = dietPlanRepository.findById(dietPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Diet Plan not found"));
+
+        String html = generateDietPlanHtml(dietPlan);
+        return generatePdfFromHtml(html);
+    }
+
     private byte[] generatePdfFromHtml(String html) {
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
@@ -69,6 +87,166 @@ public class PdfServiceImpl implements PdfService {
             browser.close();
             return pdf;
         }
+    }
+
+    private String generateDietPlanHtml(DietPlan dietPlan) throws IOException {
+        Patient patient = dietPlan.getPatient();
+        JsonNode weeklyPlan = null;
+        if (dietPlan.getWeeklyPlanJson() != null) {
+            weeklyPlan = objectMapper.readTree(dietPlan.getWeeklyPlanJson());
+        }
+
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html>");
+        html.append("<html>");
+        html.append("<head>");
+        html.append("<meta charset='UTF-8'/>");
+        html.append("<style>");
+        html.append(getCssStyles());
+        html.append("""
+            .diet-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            .diet-table th, .diet-table td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+            .diet-table th { background-color: #f2f2f2; font-weight: bold; }
+            .day-header { background-color: #e0f7fa; font-size: 14px; font-weight: bold; padding: 10px; margin-top: 20px; border: 1px solid #b2ebf2; border-radius: 5px; }
+            .slot-header { font-weight: bold; color: #00695c; margin-top: 10px; margin-bottom: 5px; font-size: 13px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+            .item-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 11px; }
+            .item-label { color: #555; }
+            .item-value { font-weight: 500; }
+            .page-break { page-break-before: always; }
+        """);
+        html.append("</style>");
+        html.append("</head>");
+        html.append("<body>");
+        
+        // Header
+        html.append("<div class='header'>");
+        html.append("<h1>डॉ. रमेश तारख क्लिनिक</h1>");
+        html.append("<h2>Dr. Ramesh Tarakh Clinic</h2>");
+        html.append("<p class='contact'>संपर्क: +91 XXXXXXXXXX | पत्ता: [Clinic Address]</p>");
+        html.append("</div>");
+        html.append("<hr/>");
+
+        // Patient Info
+        html.append("<div class='section'>");
+        html.append("<h3>आहार योजना / Diet Plan</h3>");
+        html.append("<div class='row'><span class='label'>रुग्णाचे नाव:</span><span class='value'>").append(patient.getFirstName()).append(" ").append(patient.getLastName()).append("</span></div>");
+        html.append("<div class='row'><span class='label'>कालावधी:</span><span class='value'>")
+            .append(dietPlan.getStartDate()).append(" to ").append(dietPlan.getEndDate()).append("</span></div>");
+        html.append("</div>");
+
+        if (weeklyPlan != null) {
+            String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+            String[] marathiDays = {"सोमवार", "मंगळवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार", "रविवार"};
+
+            for (int i = 0; i < days.length; i++) {
+                String day = days[i];
+                JsonNode dayData = weeklyPlan.get(day.toLowerCase());
+                
+                if (dayData != null) {
+                    if (i > 0) html.append("<div class='page-break'></div>");
+                    
+                    html.append("<div class='day-header'>").append(marathiDays[i]).append(" / ").append(day).append("</div>");
+                    
+                    // Slot 1: Morning 6 AM
+                    renderSlot(html, dayData.get("slot1"), "१) सकाळी – ६ वाजता (Morning – 6 AM)", new String[][]{
+                        {"time", "वेळ / Time"},
+                        {"drinkName", "पेयाचे नाव / Drink name"},
+                        {"quantity", "मात्रा (मिली/ग्रॅम) / Quantity"},
+                        {"additional", "अतिरिक्त घटक / Additional"},
+                        {"ghee", "तूप (ग्रॅम) / Ghee"}
+                    });
+
+                    // Slot 2: Morning 8 AM
+                    renderSlot(html, dayData.get("slot2"), "२) सकाळी – ८ वाजता (Morning – 8 AM)", new String[][]{
+                        {"time", "वेळ / Time"},
+                        {"item1Name", "पदार्थ १ नाव / Item 1"},
+                        {"item1Qty", "मात्रा / Qty"},
+                        {"item2Name", "पदार्थ २ नाव / Item 2"},
+                        {"item2Qty", "मात्रा / Qty"},
+                        {"item3Name", "पदार्थ ३ नाव / Item 3"},
+                        {"item3Qty", "मात्रा / Qty"},
+                        {"water", "पाणी (मिली) / Water"},
+                        {"instructions", "सूचना / Instructions"}
+                    });
+
+                    // Slot 3: Afternoon 12 PM
+                    renderSlot(html, dayData.get("slot3"), "३) दुपारी – १२ वाजता (Afternoon – 12 PM)", new String[][]{
+                        {"time", "वेळ / Time"},
+                        {"rotiType", "भाकरी प्रकार / Roti Type"},
+                        {"rotiCount", "भाकरी संख्या / Count"},
+                        {"flourQty", "पीठ (ग्रॅम) / Flour Qty"},
+                        {"sabjiQty", "उसळ / Curry Qty"},
+                        {"curdQty", "दही मात्रा / Curd Qty"},
+                        {"vegName", "भाजी नाव / Veg Name"},
+                        {"vegQty", "भाजी मात्रा / Veg Qty"}
+                    });
+
+                    // Slot 4: Evening 4 PM
+                    renderSlot(html, dayData.get("slot4"), "४) सायंकाळी – ४ वाजता (Evening – 4 PM)", new String[][]{
+                        {"time", "वेळ / Time"},
+                        {"drinkName", "पेयाचे नाव / Drink Name"},
+                        {"drinkQty", "पेय मात्रा / Drink Qty"}
+                    });
+
+                    // Slot 5: Night 8 PM
+                    renderSlot(html, dayData.get("slot5"), "५) रात्री – ८ वाजता (Night – 8 PM)", new String[][]{
+                        {"time", "वेळ / Time"},
+                        {"rotiType", "भाकरी प्रकार / Roti Type"},
+                        {"rotiCount", "भाकरी संख्या / Count"},
+                        {"moongDalQty", "मूग डाळ / Moong Dal"},
+                        {"dalPalakQty", "डाळ-पालक / Dal-Palak"},
+                        {"salad", "कच्ची सलाड / Salad"}
+                    });
+                }
+            }
+        }
+
+        // Instructions
+        if (dietPlan.getInstructions() != null && !dietPlan.getInstructions().isEmpty()) {
+            html.append("<div class='section'>");
+            html.append("<h3>सामान्य सूचना / General Instructions</h3>");
+            html.append("<p>").append(dietPlan.getInstructions()).append("</p>");
+            html.append("</div>");
+        }
+
+        html.append("</body>");
+        html.append("</html>");
+
+        return html.toString();
+    }
+
+    private void renderSlot(StringBuilder html, JsonNode slotData, String title, String[][] fields) {
+        if (slotData == null) return;
+        
+        // Check if slot has any data
+        boolean hasData = false;
+        for (String[] field : fields) {
+            if (slotData.has(field[0]) && !slotData.get(field[0]).asText().isEmpty()) {
+                hasData = true;
+                break;
+            }
+        }
+        
+        if (!hasData) return;
+
+        html.append("<div class='slot-section'>");
+        html.append("<div class='slot-header'>").append(title).append("</div>");
+        html.append("<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 10px;'>");
+        
+        for (String[] field : fields) {
+            String key = field[0];
+            String label = field[1];
+            String value = slotData.has(key) ? slotData.get(key).asText() : "";
+            
+            if (!value.isEmpty()) {
+                html.append("<div class='item-row'>");
+                html.append("<span class='item-label'>").append(label).append(":</span>");
+                html.append("<span class='item-value'>").append(value).append("</span>");
+                html.append("</div>");
+            }
+        }
+        html.append("</div>");
+        html.append("</div>");
     }
 
     private String generateConsentHtml(Patient patient) throws IOException {

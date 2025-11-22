@@ -36,6 +36,9 @@ public class DietPlan extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String instructions;
 
+    @Column(columnDefinition = "TEXT")
+    private String weeklyPlanJson;
+
     private LocalDate startDate;
     private LocalDate endDate;
 }

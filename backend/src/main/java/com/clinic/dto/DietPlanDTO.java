@@ -18,6 +18,7 @@ public class DietPlanDTO {
     private String lunch;
     private String dinner;
     private String instructions;
+    private String weeklyPlanJson;
     
     @NotNull(message = "Start date is required")
     private LocalDate startDate;

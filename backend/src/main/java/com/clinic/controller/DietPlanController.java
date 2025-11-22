@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class DietPlanController {
 
     private final DietPlanService dietPlanService;
+    private final com.clinic.service.PdfService pdfService;
 
     @PostMapping
     public ResponseEntity<DietPlanDTO> createDietPlan(@Valid @RequestBody DietPlanDTO dietPlanDTO) {
@@ -46,5 +47,23 @@ public class DietPlanController {
     public ResponseEntity<Void> deleteDietPlan(@PathVariable Long id) {
         dietPlanService.deleteDietPlan(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> downloadDietPlanPdf(@PathVariable Long id) {
+        try {
+            byte[] pdfBytes = pdfService.generateDietPlanPdf(id);
+            
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(org.springframework.http.ContentDisposition.builder("attachment")
+                    .filename("DietPlan_" + id + ".pdf")
+                    .build());
+            
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

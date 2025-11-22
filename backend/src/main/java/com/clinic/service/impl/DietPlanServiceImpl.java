@@ -43,6 +43,7 @@ public class DietPlanServiceImpl implements DietPlanService {
         dietPlan.setLunch(dietPlanDTO.getLunch());
         dietPlan.setDinner(dietPlanDTO.getDinner());
         dietPlan.setInstructions(dietPlanDTO.getInstructions());
+        dietPlan.setWeeklyPlanJson(dietPlanDTO.getWeeklyPlanJson());
         dietPlan.setStartDate(dietPlanDTO.getStartDate());
         dietPlan.setEndDate(dietPlanDTO.getEndDate());
 
@@ -82,6 +83,7 @@ public class DietPlanServiceImpl implements DietPlanService {
         dto.setLunch(dietPlan.getLunch());
         dto.setDinner(dietPlan.getDinner());
         dto.setInstructions(dietPlan.getInstructions());
+        dto.setWeeklyPlanJson(dietPlan.getWeeklyPlanJson());
         dto.setStartDate(dietPlan.getStartDate());
         dto.setEndDate(dietPlan.getEndDate());
         return dto;
@@ -93,6 +95,7 @@ public class DietPlanServiceImpl implements DietPlanService {
         dietPlan.setLunch(dto.getLunch());
         dietPlan.setDinner(dto.getDinner());
         dietPlan.setInstructions(dto.getInstructions());
+        dietPlan.setWeeklyPlanJson(dto.getWeeklyPlanJson());
         dietPlan.setStartDate(dto.getStartDate());
         dietPlan.setEndDate(dto.getEndDate());
         return dietPlan;
