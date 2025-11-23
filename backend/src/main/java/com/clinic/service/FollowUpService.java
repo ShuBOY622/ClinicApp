@@ -16,4 +16,9 @@ public interface FollowUpService {
     FollowUpDTO updateFollowUpStatus(Long id, String status);
     void deleteFollowUp(Long id);
     void sendReminders(); // Scheduled task
+    
+    // WhatsApp Reminder methods
+    FollowUpDTO sendManualReminder(Long followUpId);
+    List<FollowUpDTO> sendBulkReminders(List<Long> followUpIds);
+    List<FollowUpDTO> getFollowUpsForReminder();
 }

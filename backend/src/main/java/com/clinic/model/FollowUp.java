@@ -32,4 +32,13 @@ public class FollowUp extends BaseEntity {
     private String status; // PENDING, COMPLETED, MISSED, CANCELLED
 
     private boolean reminderSent = false;
+    
+    private LocalDateTime reminderSentAt;
+    
+    private String reminderStatus; // PENDING, SENT, FAILED, DELIVERED
+    
+    @Column(columnDefinition = "TEXT")
+    private String reminderError;
+    
+    private String twilioMessageSid;
 }

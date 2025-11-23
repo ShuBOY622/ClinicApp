@@ -23,3 +23,15 @@ export const updateFollowUpStatus = (id, status) => {
 export const deleteFollowUp = (id) => {
     return api.delete(`/follow-ups/${id}`);
 };
+
+export const sendReminder = (followUpId) => {
+    return api.post(`/follow-ups/${followUpId}/send-reminder`);
+};
+
+export const sendBulkReminders = (followUpIds) => {
+    return api.post('/follow-ups/send-bulk-reminders', followUpIds);
+};
+
+export const getPendingReminders = () => {
+    return api.get('/follow-ups/pending-reminders');
+};

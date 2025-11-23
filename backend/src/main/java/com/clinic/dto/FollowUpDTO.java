@@ -23,4 +23,7 @@ public class FollowUpDTO {
     private String reason;
     private String status;
     private boolean reminderSent;
+    private LocalDateTime reminderSentAt;
+    private String reminderStatus;
+    private String reminderError;
 }

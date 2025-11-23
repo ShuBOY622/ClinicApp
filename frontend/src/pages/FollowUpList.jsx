@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getTodayFollowUps, getFollowUps, updateFollowUpStatus } from '../services/followUpService';
-import { FaCheckCircle, FaClock, FaCalendarCheck, FaUser, FaPhone, FaPlus, FaCalendarAlt } from 'react-icons/fa';
+import { getTodayFollowUps, getFollowUps, updateFollowUpStatus, sendReminder } from '../services/followUpService';
+import { FaCheckCircle, FaClock, FaCalendarCheck, FaUser, FaPhone, FaPlus, FaCalendarAlt, FaWhatsapp } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 
 const FollowUpList = () => {
@@ -10,6 +10,8 @@ const FollowUpList = () => {
     const [allFollowUps, setAllFollowUps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState('today'); // 'today' or 'all'
+    const [sendingReminder, setSendingReminder] = useState(null);
+    const [toast, setToast] = useState({ show: false, message: '', type: '' });
 
     useEffect(() => {
         fetchFollowUps();
@@ -39,6 +41,26 @@ const FollowUpList = () => {
         } catch (error) {
             console.error('Error updating status:', error);
         }
+    };
+
+    const handleSendReminder = async (followUpId) => {
+        setSendingReminder(followUpId);
+        try {
+            await sendReminder(followUpId);
+            showToast('WhatsApp reminder sent successfully!', 'success');
+            fetchFollowUps();
+        } catch (error) {
+            console.error('Error sending reminder:', error);
+            const errorMsg = error.response?.data?.message || 'Failed to send reminder';
+            showToast(errorMsg, 'error');
+        } finally {
+            setSendingReminder(null);
+        }
+    };
+
+    const showToast = (message, type) => {
+        setToast({ show: true, message, type });
+        setTimeout(() => setToast({ show: false, message: '', type: '' }), 5000);
     };
 
     const getStatusConfig = (status) => {
@@ -136,10 +158,15 @@ const FollowUpList = () => {
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.badge}`}>
                                         {followUp.status}
                                     </span>
-                                    {followUp.reminderSent && (
-                                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                                    {followUp.reminderStatus === 'SENT' && (
+                                        <span className="text-xs text-green-600 flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full">
                                             <FaCheckCircle className="text-green-500" />
                                             Reminder Sent
+                                        </span>
+                                    )}
+                                    {followUp.reminderStatus === 'FAILED' && (
+                                        <span className="text-xs text-red-600 flex items-center gap-1 bg-red-50 px-2 py-1 rounded-full" title={followUp.reminderError}>
+                                            Failed
                                         </span>
                                     )}
                                 </div>
@@ -147,12 +174,28 @@ const FollowUpList = () => {
 
                             {/* Card Footer */}
                             {followUp.status !== 'Completed' && (
-                                <div className="px-4 pb-4">
+                                <div className="px-4 pb-4 space-y-2">
                                     <button
                                         onClick={() => handleStatusChange(followUp.id, 'Completed')}
                                         className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 font-medium"
                                     >
                                         <FaCheckCircle /> {t('followUp.markCompleted')}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSendReminder(followUp.id)}
+                                        disabled={sendingReminder === followUp.id}
+                                        className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {sendingReminder === followUp.id ? (
+                                            <>
+                                                <div className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                                Sending...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaWhatsapp className="text-lg" /> Send WhatsApp Reminder
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             )}
@@ -187,8 +230,8 @@ const FollowUpList = () => {
                     <button
                         onClick={() => setView('today')}
                         className={`flex-1 px-6 py-4 rounded-xl transition-all font-medium flex items-center justify-center gap-2 ${view === 'today'
-                                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg transform scale-105'
-                                : 'bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white border border-slate-200'
+                            ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg transform scale-105'
+                            : 'bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white border border-slate-200'
                             }`}
                     >
                         <FaClock className="text-lg" />
@@ -202,8 +245,8 @@ const FollowUpList = () => {
                     <button
                         onClick={() => setView('all')}
                         className={`flex-1 px-6 py-4 rounded-xl transition-all font-medium flex items-center justify-center gap-2 ${view === 'all'
-                                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg transform scale-105'
-                                : 'bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white border border-slate-200'
+                            ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg transform scale-105'
+                            : 'bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white border border-slate-200'
                             }`}
                     >
                         <FaCalendarCheck className="text-lg" />
@@ -226,7 +269,23 @@ const FollowUpList = () => {
             ) : (
                 renderList(view === 'today' ? todayFollowUps : allFollowUps)
             )}
+
+            {/* Toast Notification */}
+            {toast.show && (
+                <div className={`fixed bottom-6 right-6 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up z-50 ${toast.type === 'success'
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                        : 'bg-gradient-to-r from-red-500 to-pink-600 text-white'
+                    }`}>
+                    {toast.type === 'success' ? (
+                        <FaCheckCircle className="text-2xl" />
+                    ) : (
+                        <FaClock className="text-2xl" />
+                    )}
+                    <span className="font-medium">{toast.message}</span>
+                </div>
+            )}
         </div>
+
     );
 };
 

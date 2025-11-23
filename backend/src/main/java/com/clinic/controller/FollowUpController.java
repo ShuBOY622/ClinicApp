@@ -67,4 +67,19 @@ public class FollowUpController {
         followUpService.deleteFollowUp(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/send-reminder")
+    public ResponseEntity<FollowUpDTO> sendManualReminder(@PathVariable Long id) {
+        return ResponseEntity.ok(followUpService.sendManualReminder(id));
+    }
+
+    @PostMapping("/send-bulk-reminders")
+    public ResponseEntity<List<FollowUpDTO>> sendBulkReminders(@RequestBody List<Long> followUpIds) {
+        return ResponseEntity.ok(followUpService.sendBulkReminders(followUpIds));
+    }
+
+    @GetMapping("/pending-reminders")
+    public ResponseEntity<List<FollowUpDTO>> getPendingReminders() {
+        return ResponseEntity.ok(followUpService.getFollowUpsForReminder());
+    }
 }
