@@ -13,7 +13,7 @@ const PrescriptionForm = () => {
 
     const { register, control, handleSubmit, setValue, watch, formState: { errors } } = useForm({
         defaultValues: {
-            medicines: [{ medicineId: '', medicineName: '', dosage: '', frequency: '', duration: '', instructions: '' }]
+            medicines: [{ medicineId: '', medicineName: '', dosage: '', frequency: '', duration: '', quantity: '', instructions: '' }]
         }
     });
 
@@ -31,6 +31,7 @@ const PrescriptionForm = () => {
     const [medicineResults, setMedicineResults] = useState([]);
     const [activeMedicineIndex, setActiveMedicineIndex] = useState(null);
     const [selectedMedicineIndex, setSelectedMedicineIndex] = useState(-1);
+    const [selectedMedicines, setSelectedMedicines] = useState({}); // Track selected medicines with stock info
 
     const [loading, setLoading] = useState(false);
 
@@ -98,9 +99,25 @@ const PrescriptionForm = () => {
         }
     }, [patientIdParam]);
 
+    // Autofill patient data when patient is selected
+    useEffect(() => {
+        if (selectedPatient) {
+            // Prefill address and phone number from patient registration data
+            setValue('patientAddress', selectedPatient.address || '');
+            setValue('patientMobileNumber', selectedPatient.phone || '');
+        }
+    }, [selectedPatient, setValue]);
+
     const selectMedicine = (medicine, index) => {
         setValue(`medicines.${index}.medicineId`, medicine.id);
         setValue(`medicines.${index}.medicineName`, medicine.name);
+
+        // Store medicine stock info for validation
+        setSelectedMedicines(prev => ({
+            ...prev,
+            [index]: { id: medicine.id, name: medicine.name, stock: medicine.stockQuantity }
+        }));
+
         setMedicineSearch('');
         setMedicineResults([]);
         setActiveMedicineIndex(null);
@@ -267,240 +284,6 @@ const PrescriptionForm = () => {
                                         className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Body Type / प्रकृती
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('bodyType')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Favourite Taste / आवडता रस
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('favouriteTaste')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Daily Functions Section */}
-                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
-                                Daily Functions / दैनंदिन कार्ये
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Urine / मूत्र
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('urineDetails')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Stool / दिष्ट / शौच
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('stoolDetails')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Sleep / निद्रा
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('sleepDetails')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Sweat / घाम
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('sweatDetails')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Menstrual Details / रज
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('menstrualDetails')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Medical History Section */}
-                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
-                                Medical History / वैद्यकीय इतिहास
-                            </h3>
-                            <div className="grid grid-cols-1 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Past History / पूर्व इतिहास
-                                    </label>
-                                    <textarea
-                                        {...register('pastHistory')}
-                                        rows="2"
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Previous Treatment / पूर्व वैद्यकीय उपचार
-                                    </label>
-                                    <textarea
-                                        {...register('previousTreatment')}
-                                        rows="2"
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Previous Medication / पूर्व औषधी उपचार
-                                    </label>
-                                    <textarea
-                                        {...register('previousMedication')}
-                                        rows="2"
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Daily Routine / दिनचर्या
-                                    </label>
-                                    <textarea
-                                        {...register('dailyRoutine')}
-                                        rows="2"
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Current Complaints Section */}
-                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
-                                Current Complaints / सध्याच्या तक्रारी
-                            </h3>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700">
-                                    Current Complaints / Symptoms / सध्याच्या तक्रारी / लक्षणे
-                                </label>
-                                <textarea
-                                    {...register('currentComplaints')}
-                                    rows="3"
-                                    className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Abdominal Examination Section */}
-                        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-                            <h3 className="text-lg font-medium text-slate-800 mb-4 border-b pb-2">
-                                Abdominal Examination / उदर परीक्षण
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Liver / यकृत
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('liverExam')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Spleen / प्लीहा
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('spleenExam')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Lower Abdomen / अपानकक्षा
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('lowerAbdomenExam')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Right Kidney / दक्षिण वृक्क
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('rightKidneyExam')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Left Kidney / वाम वृक्क
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('leftKidneyExam')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Diagnosis / Status / युक्त
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('diagnosisStatus')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Right Navel Position / दक्षिण नाभि
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('rightNavelPosition')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700">
-                                        Left Navel Position / वाम नाभि
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('leftNavelPosition')}
-                                        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border"
-                                    />
-                                </div>
                             </div>
                         </div>
                     </>
@@ -534,7 +317,7 @@ const PrescriptionForm = () => {
                         <h3 className="text-lg font-medium text-slate-800">Medicines</h3>
                         <button
                             type="button"
-                            onClick={() => append({ medicineId: '', medicineName: '', dosage: '', frequency: '', duration: '', instructions: '' })}
+                            onClick={() => append({ medicineId: '', medicineName: '', dosage: '', frequency: '', duration: '', quantity: '', instructions: '' })}
                             className="text-sm text-primary hover:text-sky-700 flex items-center"
                         >
                             <FaPlus className="mr-1" /> Add Medicine
@@ -542,103 +325,137 @@ const PrescriptionForm = () => {
                     </div>
 
                     <div className="space-y-4">
-                        {fields.map((field, index) => (
-                            <div key={field.id} className="grid grid-cols-12 gap-4 items-start border-b border-slate-100 pb-4 last:border-0">
-                                <div className="col-span-4 relative">
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Medicine</label>
-                                    <input
-                                        type="text"
-                                        {...register(`medicines.${index}.medicineName`)}
-                                        placeholder="Search medicine... (Use ↑↓ and Enter)"
-                                        className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
-                                        autoComplete="off"
-                                        onFocus={() => setActiveMedicineIndex(index)}
-                                        onChange={(e) => {
-                                            register(`medicines.${index}.medicineName`).onChange(e);
-                                            setMedicineSearch(e.target.value);
-                                            setActiveMedicineIndex(index);
-                                        }}
-                                        onKeyDown={(e) => handleMedicineKeyDown(e, index)}
-                                    />
-                                    <input type="hidden" {...register(`medicines.${index}.medicineId`, { required: true })} />
+                        {fields.map((field, index) => {
+                            const watchedQuantity = watch(`medicines.${index}.quantity`);
+                            const selectedMedicine = selectedMedicines[index];
+                            const availableStock = selectedMedicine?.stock || 0;
+                            const quantityExceedsStock = watchedQuantity && parseInt(watchedQuantity) > availableStock;
 
-                                    {activeMedicineIndex === index && medicineResults.length > 0 && (
-                                        <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg max-h-40 overflow-y-auto">
-                                            {medicineResults.map((medicine, idx) => (
-                                                <div
-                                                    key={medicine.id}
-                                                    onClick={() => selectMedicine(medicine, index)}
-                                                    className={`p-2 cursor-pointer border-b border-slate-100 last:border-0 ${idx === selectedMedicineIndex
-                                                        ? 'bg-sky-100'
-                                                        : 'hover:bg-slate-50'
-                                                        }`}
-                                                >
-                                                    <p className="text-sm font-medium text-slate-900">{medicine.name}</p>
-                                                    <p className="text-xs text-slate-500">{medicine.genericName} • {medicine.stockQuantity} in stock</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {errors.medicines?.[index]?.medicineId && <p className="text-red-500 text-xs mt-1">Required</p>}
-                                </div>
+                            return (
+                                <div key={field.id} className="grid grid-cols-12 gap-4 items-start border-b border-slate-100 pb-4 last:border-0">
+                                    <div className="col-span-3 relative">
+                                        <label className="block text-xs font-medium text-slate-500 mb-1">Medicine</label>
+                                        <input
+                                            type="text"
+                                            {...register(`medicines.${index}.medicineName`)}
+                                            placeholder="Search medicine... (Use ↑↓ and Enter)"
+                                            className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
+                                            autoComplete="off"
+                                            onFocus={() => setActiveMedicineIndex(index)}
+                                            onChange={(e) => {
+                                                register(`medicines.${index}.medicineName`).onChange(e);
+                                                setMedicineSearch(e.target.value);
+                                                setActiveMedicineIndex(index);
+                                            }}
+                                            onKeyDown={(e) => handleMedicineKeyDown(e, index)}
+                                        />
+                                        <input type="hidden" {...register(`medicines.${index}.medicineId`, { required: true })} />
 
-                                <div className="col-span-2">
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Dosage</label>
-                                    <input
-                                        type="text"
-                                        {...register(`medicines.${index}.dosage`, { required: true })}
-                                        placeholder="e.g. 500mg"
-                                        className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
-                                    />
-                                    {errors.medicines?.[index]?.dosage && <p className="text-red-500 text-xs mt-1">Required</p>}
-                                </div>
+                                        {activeMedicineIndex === index && medicineResults.length > 0 && (
+                                            <div className="absolute z-10 w-full bg-white mt-1 border border-slate-200 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                                {medicineResults.map((medicine, idx) => (
+                                                    <div
+                                                        key={medicine.id}
+                                                        onClick={() => selectMedicine(medicine, index)}
+                                                        className={`p-2 cursor-pointer border-b border-slate-100 last:border-0 ${idx === selectedMedicineIndex
+                                                            ? 'bg-sky-100'
+                                                            : 'hover:bg-slate-50'
+                                                            }`}
+                                                    >
+                                                        <p className="text-sm font-medium text-slate-900">{medicine.name}</p>
+                                                        <p className="text-xs text-slate-500">{medicine.genericName} • {medicine.stockQuantity} in stock</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {errors.medicines?.[index]?.medicineId && <p className="text-red-500 text-xs mt-1">Required</p>}
+                                    </div>
 
-                                <div className="col-span-2">
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Frequency</label>
-                                    <input
-                                        type="text"
-                                        {...register(`medicines.${index}.frequency`, { required: true })}
-                                        placeholder="e.g. 2x daily"
-                                        className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
-                                    />
-                                    {errors.medicines?.[index]?.frequency && <p className="text-red-500 text-xs mt-1">Required</p>}
-                                </div>
+                                    <div className="col-span-1">
+                                        <label className="block text-xs font-medium text-slate-500 mb-1">Quantity</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            {...register(`medicines.${index}.quantity`, {
+                                                required: "Quantity is required",
+                                                min: { value: 1, message: "Min 1" },
+                                                validate: value => {
+                                                    if (!selectedMedicine) return true;
+                                                    return parseInt(value) <= availableStock || `Max ${availableStock}`;
+                                                }
+                                            })}
+                                            placeholder="Qty"
+                                            className={`block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm ${quantityExceedsStock ? 'border-red-500 bg-red-50' : ''
+                                                }`}
+                                        />
+                                        {selectedMedicine && (
+                                            <p className={`text-xs mt-1 ${quantityExceedsStock ? 'text-red-500 font-medium' : 'text-slate-500'}`}>
+                                                Stock: {availableStock}
+                                            </p>
+                                        )}
+                                        {errors.medicines?.[index]?.quantity && (
+                                            <p className="text-red-500 text-xs mt-1">{errors.medicines[index].quantity.message}</p>
+                                        )}
+                                    </div>
 
-                                <div className="col-span-2">
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Duration</label>
-                                    <input
-                                        type="text"
-                                        {...register(`medicines.${index}.duration`, { required: true })}
-                                        placeholder="e.g. 7 days"
-                                        className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
-                                    />
-                                    {errors.medicines?.[index]?.duration && <p className="text-red-500 text-xs mt-1">Required</p>}
-                                </div>
+                                    <div className="col-span-2">
+                                        <label className="block text-xs font-medium text-slate-500 mb-1">Dosage</label>
+                                        <input
+                                            type="text"
+                                            {...register(`medicines.${index}.dosage`, { required: true })}
+                                            placeholder="e.g. 1-0-1"
+                                            className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
+                                        />
+                                        {errors.medicines?.[index]?.dosage && <p className="text-red-500 text-xs mt-1">Required</p>}
+                                    </div>
 
-                                <div className="col-span-1 flex items-end">
-                                    {fields.length > 1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => remove(index)}
-                                            className="text-red-500 hover:text-red-700 p-2"
-                                            title="Remove"
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    )}
-                                </div>
+                                    <div className="col-span-2">
+                                        <label className="block text-xs font-medium text-slate-500 mb-1">Frequency</label>
+                                        <input
+                                            type="text"
+                                            {...register(`medicines.${index}.frequency`, { required: true })}
+                                            placeholder="e.g. 2x daily"
+                                            className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
+                                        />
+                                        {errors.medicines?.[index]?.frequency && <p className="text-red-500 text-xs mt-1">Required</p>}
+                                    </div>
 
-                                <div className="col-span-12">
-                                    <label className="block text-xs font-medium text-slate-500 mb-1">Instructions (Optional)</label>
-                                    <input
-                                        type="text"
-                                        {...register(`medicines.${index}.instructions`)}
-                                        placeholder="e.g. Take after meals"
-                                        className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
-                                    />
+                                    <div className="col-span-2">
+                                        <label className="block text-xs font-medium text-slate-500 mb-1">Duration</label>
+                                        <input
+                                            type="text"
+                                            {...register(`medicines.${index}.duration`, { required: true })}
+                                            placeholder="e.g. 7 days"
+                                            className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
+                                        />
+                                        {errors.medicines?.[index]?.duration && <p className="text-red-500 text-xs mt-1">Required</p>}
+                                    </div>
+
+                                    <div className="col-span-1 flex items-end">
+                                        {fields.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => remove(index)}
+                                                className="text-red-500 hover:text-red-700 p-2"
+                                                title="Remove"
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="col-span-12">
+                                        <label className="block text-xs font-medium text-slate-500 mb-1">Instructions (Optional)</label>
+                                        <input
+                                            type="text"
+                                            {...register(`medicines.${index}.instructions`)}
+                                            placeholder="e.g. Take after meals"
+                                            className="block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 p-2 border text-sm"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
 

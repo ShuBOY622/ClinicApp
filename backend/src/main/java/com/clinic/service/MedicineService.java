@@ -11,4 +11,5 @@ public interface MedicineService {
     void deleteMedicine(Long id);
     Page<MedicineDTO> getAllMedicines(Pageable pageable);
     Page<MedicineDTO> searchMedicines(String keyword, Pageable pageable);
+    void deductStock(Long medicineId, Integer quantity);
 }

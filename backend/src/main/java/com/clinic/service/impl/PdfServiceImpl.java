@@ -381,63 +381,10 @@ public class PdfServiceImpl implements PdfService {
             if (prescription.getPatientMobileNumber() != null) {
                 html.append("<div class='row'><span class='label'>मोबाइल / Mobile:</span><span class='value'>").append(prescription.getPatientMobileNumber()).append("</span></div>");
             }
-            if (prescription.getBodyType() != null) {
-                html.append("<div class='row'><span class='label'>प्रकृती / Body Type:</span><span class='value'>").append(prescription.getBodyType()).append("</span></div>");
-            }
-            if (prescription.getFavouriteTaste() != null) {
-                html.append("<div class='row'><span class='label'>आवडता रस / Favourite Taste:</span><span class='value'>").append(prescription.getFavouriteTaste()).append("</span></div>");
-            }
             html.append("</div>");
         }
 
-        // Daily Functions
-        if (hasDailyFunctions(prescription)) {
-            html.append("<div class='section'>");
-            html.append("<h3>दैनंदिन कार्ये / Daily Functions</h3>");
-            if (prescription.getUrineDetails() != null) {
-                html.append("<div class='row'><span class='label'>मूत्र / Urine:</span><span class='value'>").append(prescription.getUrineDetails()).append("</span></div>");
-            }
-            if (prescription.getStoolDetails() != null) {
-                html.append("<div class='row'><span class='label'>दिष्ट/शौच / Stool:</span><span class='value'>").append(prescription.getStoolDetails()).append("</span></div>");
-            }
-            if (prescription.getSleepDetails() != null) {
-                html.append("<div class='row'><span class='label'>निद्रा / Sleep:</span><span class='value'>").append(prescription.getSleepDetails()).append("</span></div>");
-            }
-            if (prescription.getSweatDetails() != null) {
-                html.append("<div class='row'><span class='label'>घाम / Sweat:</span><span class='value'>").append(prescription.getSweatDetails()).append("</span></div>");
-            }
-            if (prescription.getMenstrualDetails() != null) {
-                html.append("<div class='row'><span class='label'>रज / Menstrual:</span><span class='value'>").append(prescription.getMenstrualDetails()).append("</span></div>");
-            }
-            html.append("</div>");
-        }
 
-        // Medical History
-        if (hasMedicalHistory(prescription)) {
-            html.append("<div class='section'>");
-            html.append("<h3>वैद्यकीय इतिहास / Medical History</h3>");
-            if (prescription.getPastHistory() != null) {
-                html.append("<div class='row full'><span class='label'>पूर्व इतिहास / Past History:</span><span class='value'>").append(prescription.getPastHistory()).append("</span></div>");
-            }
-            if (prescription.getPreviousTreatment() != null) {
-                html.append("<div class='row full'><span class='label'>पूर्व उपचार / Previous Treatment:</span><span class='value'>").append(prescription.getPreviousTreatment()).append("</span></div>");
-            }
-            if (prescription.getPreviousMedication() != null) {
-                html.append("<div class='row full'><span class='label'>पूर्व औषधी / Previous Medication:</span><span class='value'>").append(prescription.getPreviousMedication()).append("</span></div>");
-            }
-            if (prescription.getDailyRoutine() != null) {
-                html.append("<div class='row full'><span class='label'>दिनचर्या / Daily Routine:</span><span class='value'>").append(prescription.getDailyRoutine()).append("</span></div>");
-            }
-            html.append("</div>");
-        }
-
-        // Current Complaints
-        if (prescription.getCurrentComplaints() != null) {
-            html.append("<div class='section'>");
-            html.append("<h3>सध्याच्या तक्रारी / Current Complaints</h3>");
-            html.append("<p>").append(prescription.getCurrentComplaints()).append("</p>");
-            html.append("</div>");
-        }
 
         // Diagnosis
         if (prescription.getDiagnosis() != null) {
@@ -485,17 +432,7 @@ public class PdfServiceImpl implements PdfService {
 
     private boolean hasBasicInfo(Prescription p) {
         return p.getPatientAddress() != null || p.getPatientOccupation() != null || 
-               p.getPatientMobileNumber() != null || p.getBodyType() != null || p.getFavouriteTaste() != null;
-    }
-
-    private boolean hasDailyFunctions(Prescription p) {
-        return p.getUrineDetails() != null || p.getStoolDetails() != null || 
-               p.getSleepDetails() != null || p.getSweatDetails() != null || p.getMenstrualDetails() != null;
-    }
-
-    private boolean hasMedicalHistory(Prescription p) {
-        return p.getPastHistory() != null || p.getPreviousTreatment() != null || 
-               p.getPreviousMedication() != null || p.getDailyRoutine() != null;
+               p.getPatientMobileNumber() != null;
     }
 
     private String getCssStyles() throws IOException {

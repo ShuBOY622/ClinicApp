@@ -28,5 +28,7 @@ public class PrescriptionMedicine extends BaseEntity {
 
     private String duration; // e.g., 5 days
 
+    private Integer quantity; // Number of units prescribed
+
     private String instructions;
 }

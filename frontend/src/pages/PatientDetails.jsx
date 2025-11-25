@@ -286,77 +286,373 @@ const PatientDetails = () => {
 
                     {/* Medical History Tab */}
                     {activeTab === 'history' && (
-                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
-                            <div className="flex items-center justify-between mb-4">
-                                <h4 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
-                                    <FaHistory />
-                                    {t('patient.medicalHistory')}
-                                </h4>
-                                {!editingHistory && (
-                                    <button
-                                        onClick={() => {
-                                            setEditingHistory(true);
-                                            setMedicalHistoryText(patient.medicalHistory || '');
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
-                                    >
-                                        <FaEdit /> Edit History
-                                    </button>
-                                )}
-                            </div>
-
-                            {editingHistory ? (
-                                <div className="space-y-4">
-                                    <textarea
-                                        value={medicalHistoryText}
-                                        onChange={(e) => setMedicalHistoryText(e.target.value)}
-                                        rows="10"
-                                        className="w-full p-4 border-2 border-purple-300 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
-                                        placeholder="Enter medical history, chronic diseases, allergies, past surgeries, etc."
-                                    />
-                                    <div className="flex gap-3 justify-end">
+                        <div className="space-y-6">
+                            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
+                                        <FaHistory />
+                                        {t('patient.medicalHistory')}
+                                    </h4>
+                                    {!editingHistory && (
                                         <button
                                             onClick={() => {
-                                                setEditingHistory(false);
-                                                setMedicalHistoryText('');
+                                                setEditingHistory(true);
+                                                setMedicalHistoryText(patient.medicalHistory || '');
                                             }}
-                                            className="px-4 py-2 bg-white border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all font-medium"
+                                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
                                         >
-                                            Cancel
+                                            <FaEdit /> Edit All Details
                                         </button>
-                                        <button
-                                            onClick={handleSaveMedicalHistory}
-                                            disabled={savingHistory}
-                                            className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all font-medium disabled:opacity-50 flex items-center gap-2"
-                                        >
-                                            <FaSave />
-                                            {savingHistory ? 'Saving...' : 'Save Changes'}
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-purple-200">
-                                    {patient.medicalHistory ? (
-                                        <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                                            {patient.medicalHistory}
-                                        </p>
-                                    ) : (
-                                        <div className="text-center py-8">
-                                            <FaHistory className="mx-auto h-12 w-12 text-purple-300 mb-3" />
-                                            <p className="text-slate-500 mb-4">No medical history recorded.</p>
-                                            <button
-                                                onClick={() => {
-                                                    setEditingHistory(true);
-                                                    setMedicalHistoryText('');
-                                                }}
-                                                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
-                                            >
-                                                Add Medical History
-                                            </button>
-                                        </div>
                                     )}
                                 </div>
-                            )}
+
+                                {editingHistory ? (
+                                    <div className="space-y-6">
+                                        {/* General Medical History */}
+                                        <div className="bg-white rounded-lg p-4">
+                                            <h5 className="font-semibold text-slate-800 mb-3">General Medical History</h5>
+                                            <textarea
+                                                value={medicalHistoryText}
+                                                onChange={(e) => setMedicalHistoryText(e.target.value)}
+                                                rows="4"
+                                                className="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
+                                                placeholder="Enter general medical history, chronic diseases, allergies, past surgeries, etc."
+                                            />
+                                        </div>
+
+                                        {/* Physical Characteristics */}
+                                        <div className="bg-white rounded-lg p-4">
+                                            <h5 className="font-semibold text-slate-800 mb-3">Physical Characteristics / शारीरिक वैशिष्ट्ये</h5>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Body Type / प्रकृती</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.bodyType || ''}
+                                                        onChange={(e) => setPatient({ ...patient, bodyType: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Favourite Taste / आवडता रस</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.favouriteTaste || ''}
+                                                        onChange={(e) => setPatient({ ...patient, favouriteTaste: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Occupation / व्यवसाय</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.occupation || ''}
+                                                        onChange={(e) => setPatient({ ...patient, occupation: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Daily Functions */}
+                                        <div className="bg-white rounded-lg p-4">
+                                            <h5 className="font-semibold text-slate-800 mb-3">Daily Functions / दैनंदिन कार्ये</h5>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Urine / मूत्र</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.urineDetails || ''}
+                                                        onChange={(e) => setPatient({ ...patient, urineDetails: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Stool / दिष्ट / शौच</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.stoolDetails || ''}
+                                                        onChange={(e) => setPatient({ ...patient, stoolDetails: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Sleep / निद्रा</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.sleepDetails || ''}
+                                                        onChange={(e) => setPatient({ ...patient, sleepDetails: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Sweat / घाम</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.sweatDetails || ''}
+                                                        onChange={(e) => setPatient({ ...patient, sweatDetails: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Menstrual Details / रज</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.menstrualDetails || ''}
+                                                        onChange={(e) => setPatient({ ...patient, menstrualDetails: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Medical History Details */}
+                                        <div className="bg-white rounded-lg p-4">
+                                            <h5 className="font-semibold text-slate-800 mb-3">Medical History Details / वैद्यकीय इतिहास तपशील</h5>
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Past History / पूर्व इतिहास</label>
+                                                    <textarea
+                                                        value={patient.pastHistory || ''}
+                                                        onChange={(e) => setPatient({ ...patient, pastHistory: e.target.value })}
+                                                        rows="2"
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Previous Treatment / पूर्व वैद्यकीय उपचार</label>
+                                                    <textarea
+                                                        value={patient.previousTreatment || ''}
+                                                        onChange={(e) => setPatient({ ...patient, previousTreatment: e.target.value })}
+                                                        rows="2"
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Previous Medication / पूर्व औषधी उपचार</label>
+                                                    <textarea
+                                                        value={patient.previousMedication || ''}
+                                                        onChange={(e) => setPatient({ ...patient, previousMedication: e.target.value })}
+                                                        rows="2"
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Daily Routine / दिनचर्या</label>
+                                                    <textarea
+                                                        value={patient.dailyRoutine || ''}
+                                                        onChange={(e) => setPatient({ ...patient, dailyRoutine: e.target.value })}
+                                                        rows="2"
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Current Complaints */}
+                                        <div className="bg-white rounded-lg p-4">
+                                            <h5 className="font-semibold text-slate-800 mb-3">Current Complaints / सध्याच्या तक्रारी</h5>
+                                            <textarea
+                                                value={patient.currentComplaints || ''}
+                                                onChange={(e) => setPatient({ ...patient, currentComplaints: e.target.value })}
+                                                rows="3"
+                                                className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none resize-none"
+                                                placeholder="Enter current complaints and symptoms"
+                                            />
+                                        </div>
+
+                                        {/* Abdominal Examination */}
+                                        <div className="bg-white rounded-lg p-4">
+                                            <h5 className="font-semibold text-slate-800 mb-3">Abdominal Examination / उदर परीक्षण</h5>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Liver / यकृत</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.liverExam || ''}
+                                                        onChange={(e) => setPatient({ ...patient, liverExam: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Spleen / प्लीहा</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.spleenExam || ''}
+                                                        onChange={(e) => setPatient({ ...patient, spleenExam: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Lower Abdomen / अपानकक्षा</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.lowerAbdomenExam || ''}
+                                                        onChange={(e) => setPatient({ ...patient, lowerAbdomenExam: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Right Kidney / दक्षिण वृक्क</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.rightKidneyExam || ''}
+                                                        onChange={(e) => setPatient({ ...patient, rightKidneyExam: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Left Kidney / वाम वृक्क</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.leftKidneyExam || ''}
+                                                        onChange={(e) => setPatient({ ...patient, leftKidneyExam: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Diagnosis / Status / युक्त</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.diagnosisStatus || ''}
+                                                        onChange={(e) => setPatient({ ...patient, diagnosisStatus: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Right Navel Position / दक्षिण नाभि</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.rightNavelPosition || ''}
+                                                        onChange={(e) => setPatient({ ...patient, rightNavelPosition: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 mb-1">Left Navel Position / वाम नाभि</label>
+                                                    <input
+                                                        type="text"
+                                                        value={patient.leftNavelPosition || ''}
+                                                        onChange={(e) => setPatient({ ...patient, leftNavelPosition: e.target.value })}
+                                                        className="w-full p-2 border border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-3 justify-end">
+                                            <button
+                                                onClick={() => {
+                                                    setEditingHistory(false);
+                                                    setMedicalHistoryText('');
+                                                    // Reload patient data to reset changes
+                                                    const fetchPatient = async () => {
+                                                        const response = await getPatientById(id);
+                                                        setPatient(response.data);
+                                                    };
+                                                    fetchPatient();
+                                                }}
+                                                className="px-4 py-2 bg-white border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all font-medium"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={handleSaveMedicalHistory}
+                                                disabled={savingHistory}
+                                                className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all font-medium disabled:opacity-50 flex items-center gap-2"
+                                            >
+                                                <FaSave />
+                                                {savingHistory ? 'Saving...' : 'Save All Changes'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {/* Display all medical history information */}
+                                        {patient.medicalHistory && (
+                                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                                                <h5 className="font-semibold text-slate-800 mb-2">General Medical History</h5>
+                                                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{patient.medicalHistory}</p>
+                                            </div>
+                                        )}
+
+                                        {(patient.bodyType || patient.favouriteTaste || patient.occupation) && (
+                                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                                                <h5 className="font-semibold text-slate-800 mb-2">Physical Characteristics</h5>
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    {patient.bodyType && <div><span className="font-medium">Body Type:</span> {patient.bodyType}</div>}
+                                                    {patient.favouriteTaste && <div><span className="font-medium">Favourite Taste:</span> {patient.favouriteTaste}</div>}
+                                                    {patient.occupation && <div><span className="font-medium">Occupation:</span> {patient.occupation}</div>}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {(patient.urineDetails || patient.stoolDetails || patient.sleepDetails || patient.sweatDetails || patient.menstrualDetails) && (
+                                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                                                <h5 className="font-semibold text-slate-800 mb-2">Daily Functions</h5>
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    {patient.urineDetails && <div><span className="font-medium">Urine:</span> {patient.urineDetails}</div>}
+                                                    {patient.stoolDetails && <div><span className="font-medium">Stool:</span> {patient.stoolDetails}</div>}
+                                                    {patient.sleepDetails && <div><span className="font-medium">Sleep:</span> {patient.sleepDetails}</div>}
+                                                    {patient.sweatDetails && <div><span className="font-medium">Sweat:</span> {patient.sweatDetails}</div>}
+                                                    {patient.menstrualDetails && <div><span className="font-medium">Menstrual:</span> {patient.menstrualDetails}</div>}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {(patient.pastHistory || patient.previousTreatment || patient.previousMedication || patient.dailyRoutine) && (
+                                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                                                <h5 className="font-semibold text-slate-800 mb-2">Medical History Details</h5>
+                                                <div className="space-y-2 text-sm">
+                                                    {patient.pastHistory && <div><span className="font-medium">Past History:</span> <p className="mt-1 text-slate-700">{patient.pastHistory}</p></div>}
+                                                    {patient.previousTreatment && <div><span className="font-medium">Previous Treatment:</span> <p className="mt-1 text-slate-700">{patient.previousTreatment}</p></div>}
+                                                    {patient.previousMedication && <div><span className="font-medium">Previous Medication:</span> <p className="mt-1 text-slate-700">{patient.previousMedication}</p></div>}
+                                                    {patient.dailyRoutine && <div><span className="font-medium">Daily Routine:</span> <p className="mt-1 text-slate-700">{patient.dailyRoutine}</p></div>}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {patient.currentComplaints && (
+                                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                                                <h5 className="font-semibold text-slate-800 mb-2">Current Complaints</h5>
+                                                <p className="text-slate-700 whitespace-pre-wrap">{patient.currentComplaints}</p>
+                                            </div>
+                                        )}
+
+                                        {(patient.liverExam || patient.spleenExam || patient.lowerAbdomenExam || patient.rightKidneyExam || patient.leftKidneyExam || patient.diagnosisStatus || patient.rightNavelPosition || patient.leftNavelPosition) && (
+                                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-200">
+                                                <h5 className="font-semibold text-slate-800 mb-2">Abdominal Examination</h5>
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    {patient.liverExam && <div><span className="font-medium">Liver:</span> {patient.liverExam}</div>}
+                                                    {patient.spleenExam && <div><span className="font-medium">Spleen:</span> {patient.spleenExam}</div>}
+                                                    {patient.lowerAbdomenExam && <div><span className="font-medium">Lower Abdomen:</span> {patient.lowerAbdomenExam}</div>}
+                                                    {patient.rightKidneyExam && <div><span className="font-medium">Right Kidney:</span> {patient.rightKidneyExam}</div>}
+                                                    {patient.leftKidneyExam && <div><span className="font-medium">Left Kidney:</span> {patient.leftKidneyExam}</div>}
+                                                    {patient.diagnosisStatus && <div><span className="font-medium">Diagnosis/Status:</span> {patient.diagnosisStatus}</div>}
+                                                    {patient.rightNavelPosition && <div><span className="font-medium">Right Navel:</span> {patient.rightNavelPosition}</div>}
+                                                    {patient.leftNavelPosition && <div><span className="font-medium">Left Navel:</span> {patient.leftNavelPosition}</div>}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {!patient.medicalHistory && !patient.bodyType && !patient.urineDetails && !patient.pastHistory && !patient.currentComplaints && !patient.liverExam && (
+                                            <div className="text-center py-8">
+                                                <FaHistory className="mx-auto h-12 w-12 text-purple-300 mb-3" />
+                                                <p className="text-slate-500 mb-4">No medical history recorded.</p>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingHistory(true);
+                                                        setMedicalHistoryText('');
+                                                    }}
+                                                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
+                                                >
+                                                    Add Medical History
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 

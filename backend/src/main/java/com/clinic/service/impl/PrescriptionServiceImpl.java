@@ -27,6 +27,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final PatientRepository patientRepository;
     private final MedicineRepository medicineRepository;
+    private final com.clinic.service.MedicineService medicineService;
 
     @Override
     @Transactional
@@ -70,11 +71,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 Medicine medicine = medicineRepository.findById(pmDTO.getMedicineId())
                         .orElseThrow(() -> new ResourceNotFoundException("Medicine not found with id: " + pmDTO.getMedicineId()));
 
+                // Validate and deduct stock
+                medicineService.deductStock(pmDTO.getMedicineId(), pmDTO.getQuantity());
+
                 PrescriptionMedicine pm = new PrescriptionMedicine();
                 pm.setMedicine(medicine);
                 pm.setDosage(pmDTO.getDosage());
                 pm.setFrequency(pmDTO.getFrequency());
                 pm.setDuration(pmDTO.getDuration());
+                pm.setQuantity(pmDTO.getQuantity());
                 pm.setInstructions(pmDTO.getInstructions());
                 
                 prescription.addMedicine(pm);
@@ -151,6 +156,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 pmDTO.setDosage(pm.getDosage());
                 pmDTO.setFrequency(pm.getFrequency());
                 pmDTO.setDuration(pm.getDuration());
+                pmDTO.setQuantity(pm.getQuantity());
+                pmDTO.setAvailableStock(pm.getMedicine().getStockQuantity());
                 pmDTO.setInstructions(pm.getInstructions());
                 return pmDTO;
             }).collect(Collectors.toList()));

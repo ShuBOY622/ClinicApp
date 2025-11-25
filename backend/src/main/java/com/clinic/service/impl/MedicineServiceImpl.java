@@ -102,4 +102,23 @@ public class MedicineServiceImpl implements MedicineService {
         medicine.setExpiryDate(dto.getExpiryDate());
         return medicine;
     }
+
+    @Override
+    @Transactional
+    public void deductStock(Long medicineId, Integer quantity) {
+        Medicine medicine = medicineRepository.findById(medicineId)
+                .orElseThrow(() -> new ResourceNotFoundException("Medicine not found with id: " + medicineId));
+        
+        Integer currentStock = medicine.getStockQuantity() != null ? medicine.getStockQuantity() : 0;
+        
+        if (currentStock < quantity) {
+            throw new IllegalStateException(
+                String.format("Insufficient stock for medicine '%s'. Available: %d, Requested: %d", 
+                    medicine.getName(), currentStock, quantity)
+            );
+        }
+        
+        medicine.setStockQuantity(currentStock - quantity);
+        medicineRepository.save(medicine);
+    }
 }
