@@ -89,6 +89,25 @@ public class PdfServiceImpl implements PdfService {
         }
     }
 
+    private String loadImageAsBase64(String imagePath) throws IOException {
+        try (InputStream is = getClass().getResourceAsStream(imagePath)) {
+            if (is != null) {
+                byte[] imageBytes = is.readAllBytes();
+                return Base64.getEncoder().encodeToString(imageBytes);
+            }
+        }
+        return "";
+    }
+
+    private String getHeaderImageHtml() throws IOException {
+        String headerBase64 = loadImageAsBase64("/images/header.png");
+        if (!headerBase64.isEmpty()) {
+            return "<div class='header-image'><img src='data:image/png;base64," + headerBase64 + "' alt='Clinic Header' /></div>";
+        }
+        // Fallback to text header if image not found
+        return "<div class='header'><h1>डॉ. रमेश तारख क्लिनिक</h1><h2>Dr. Ramesh Tarakh Clinic</h2><p class='contact'>संपर्क: +91 XXXXXXXXXX | पत्ता: [Clinic Address]</p></div>";
+    }
+
     private String generateDietPlanHtml(DietPlan dietPlan) throws IOException {
         Patient patient = dietPlan.getPatient();
         JsonNode weeklyPlan = null;
@@ -118,12 +137,8 @@ public class PdfServiceImpl implements PdfService {
         html.append("</head>");
         html.append("<body>");
         
-        // Header
-        html.append("<div class='header'>");
-        html.append("<h1>डॉ. रमेश तारख क्लिनिक</h1>");
-        html.append("<h2>Dr. Ramesh Tarakh Clinic</h2>");
-        html.append("<p class='contact'>संपर्क: +91 XXXXXXXXXX | पत्ता: [Clinic Address]</p>");
-        html.append("</div>");
+        // Header with image
+        html.append(getHeaderImageHtml());
         html.append("<hr/>");
 
         // Patient Info
@@ -159,43 +174,57 @@ public class PdfServiceImpl implements PdfService {
                     // Slot 2: Morning 8 AM
                     renderSlot(html, dayData.get("slot2"), "२) सकाळी – ८ वाजता (Morning – 8 AM)", new String[][]{
                         {"time", "वेळ / Time"},
-                        {"item1Name", "पदार्थ १ नाव / Item 1"},
-                        {"item1Qty", "मात्रा / Qty"},
-                        {"item2Name", "पदार्थ २ नाव / Item 2"},
-                        {"item2Qty", "मात्रा / Qty"},
-                        {"item3Name", "पदार्थ ३ नाव / Item 3"},
-                        {"item3Qty", "मात्रा / Qty"},
-                        {"water", "पाणी (मिली) / Water"},
-                        {"instructions", "सूचना / Instructions"}
+                        {"curry1Name", "भाजी १ नाव / Bhaji 1 Name"},
+                        {"curry1Qty", "भाजी १ मात्रा / Bhaji 1 Qty"},
+                        {"curry2Name", "भाजी २ नाव / Bhaji 2 Name"},
+                        {"curry2Qty", "भाजी २ मात्रा / Bhaji 2 Qty"},
+                        {"curry3Name", "भाजी ३ नाव / Bhaji 3 Name"},
+                        {"curry3Qty", "भाजी ३ मात्रा / Bhaji 3 Qty"},
+                        {"other", "इतर / Other"},
+                        {"rotiType", "भाकरी प्रकार / Type of Roti"},
+                        {"food", "अन्न / Food"}
                     });
 
                     // Slot 3: Afternoon 12 PM
                     renderSlot(html, dayData.get("slot3"), "३) दुपारी – १२ वाजता (Afternoon – 12 PM)", new String[][]{
                         {"time", "वेळ / Time"},
-                        {"rotiType", "भाकरी प्रकार / Roti Type"},
-                        {"rotiCount", "भाकरी संख्या / Count"},
-                        {"flourQty", "पीठ (ग्रॅम) / Flour Qty"},
-                        {"sabjiQty", "उसळ / Curry Qty"},
-                        {"curdQty", "दही मात्रा / Curd Qty"},
-                        {"vegName", "भाजी नाव / Veg Name"},
-                        {"vegQty", "भाजी मात्रा / Veg Qty"}
+                        {"curry1Name", "भाजी १ नाव / Bhaji 1 Name"},
+                        {"curry1Qty", "भाजी १ मात्रा / Bhaji 1 Qty"},
+                        {"curry2Name", "भाजी २ नाव / Bhaji 2 Name"},
+                        {"curry2Qty", "भाजी २ मात्रा / Bhaji 2 Qty"},
+                        {"curry3Name", "भाजी ३ नाव / Bhaji 3 Name"},
+                        {"curry3Qty", "भाजी ३ मात्रा / Bhaji 3 Qty"},
+                        {"other", "इतर / Other"},
+                        {"rotiType", "भाकरी प्रकार / Type of Roti"},
+                        {"food", "अन्न / Food"}
                     });
 
                     // Slot 4: Evening 4 PM
                     renderSlot(html, dayData.get("slot4"), "४) सायंकाळी – ४ वाजता (Evening – 4 PM)", new String[][]{
                         {"time", "वेळ / Time"},
-                        {"drinkName", "पेयाचे नाव / Drink Name"},
-                        {"drinkQty", "पेय मात्रा / Drink Qty"}
+                        {"curry1Name", "भाजी १ नाव / Bhaji 1 Name"},
+                        {"curry1Qty", "भाजी १ मात्रा / Bhaji 1 Qty"},
+                        {"curry2Name", "भाजी २ नाव / Bhaji 2 Name"},
+                        {"curry2Qty", "भाजी २ मात्रा / Bhaji 2 Qty"},
+                        {"curry3Name", "भाजी ३ नाव / Bhaji 3 Name"},
+                        {"curry3Qty", "भाजी ३ मात्रा / Bhaji 3 Qty"},
+                        {"other", "इतर / Other"},
+                        {"rotiType", "भाकरी प्रकार / Type of Roti"},
+                        {"food", "अन्न / Food"}
                     });
 
                     // Slot 5: Night 8 PM
                     renderSlot(html, dayData.get("slot5"), "५) रात्री – ८ वाजता (Night – 8 PM)", new String[][]{
                         {"time", "वेळ / Time"},
-                        {"rotiType", "भाकरी प्रकार / Roti Type"},
-                        {"rotiCount", "भाकरी संख्या / Count"},
-                        {"moongDalQty", "मूग डाळ / Moong Dal"},
-                        {"dalPalakQty", "डाळ-पालक / Dal-Palak"},
-                        {"salad", "कच्ची सलाड / Salad"}
+                        {"curry1Name", "भाजी १ नाव / Bhaji 1 Name"},
+                        {"curry1Qty", "भाजी १ मात्रा / Bhaji 1 Qty"},
+                        {"curry2Name", "भाजी २ नाव / Bhaji 2 Name"},
+                        {"curry2Qty", "भाजी २ मात्रा / Bhaji 2 Qty"},
+                        {"curry3Name", "भाजी ३ नाव / Bhaji 3 Name"},
+                        {"curry3Qty", "भाजी ३ मात्रा / Bhaji 3 Qty"},
+                        {"other", "इतर / Other"},
+                        {"rotiType", "भाकरी प्रकार / Type of Roti"},
+                        {"food", "अन्न / Food"}
                     });
                 }
             }
@@ -267,12 +296,8 @@ public class PdfServiceImpl implements PdfService {
         html.append("</head>");
         html.append("<body>");
         
-        // Header
-        html.append("<div class='header'>");
-        html.append("<h1>डॉ. रमेश तारख क्लिनिक</h1>");
-        html.append("<h2>Dr. Ramesh Tarakh Clinic</h2>");
-        html.append("<p class='contact'>संपर्क: +91 XXXXXXXXXX | पत्ता: [Clinic Address]</p>");
-        html.append("</div>");
+        // Header with image
+        html.append(getHeaderImageHtml());
         
         html.append("<hr/>");
 
@@ -341,12 +366,8 @@ public class PdfServiceImpl implements PdfService {
         html.append("</head>");
         html.append("<body>");
         
-        // Header
-        html.append("<div class='header'>");
-        html.append("<h1>डॉ. रमेश तारख क्लिनिक</h1>");
-        html.append("<h2>Dr. Ramesh Tarakh Clinic</h2>");
-        html.append("<p class='contact'>संपर्क: +91 XXXXXXXXXX | पत्ता: [Clinic Address]</p>");
-        html.append("</div>");
+        // Header with image
+        html.append(getHeaderImageHtml());
         
         html.append("<hr/>");
         
@@ -444,7 +465,7 @@ public class PdfServiceImpl implements PdfService {
             }
         }
 
-        return """
+        return String.format("""
             @font-face {
                 font-family: 'NotoSansDevanagari';
                 src: url(data:font/ttf;base64,%s) format('truetype');
@@ -550,6 +571,16 @@ public class PdfServiceImpl implements PdfService {
                 margin-top: 40px;
                 margin-bottom: 40px;
             }
-            """.formatted(fontBase64);
+            .header-image {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .header-image img {
+                max-width: 100%%;
+                height: auto;
+                display: block;
+                margin: 0 auto;
+            }
+            """, fontBase64);
     }
 }
