@@ -17,8 +17,7 @@ const Header = () => {
             <div className="flex items-center gap-3">
                 {/* <img src="/logo.png" alt="Clinic Logo" className="h-10 w-10 object-contain" /> */}
                 <h1 className="text-xl font-semibold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
-                    Dr. Ramesh Tarakh Clinic
-                </h1>
+                    साई मुळव्याध फिमोसिस कॉस्मेटिक पंचकर्म सेंटर                </h1>
             </div>
             <div className="flex items-center space-x-4">
                 <LanguageToggle />

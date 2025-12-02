@@ -5,7 +5,7 @@ import { getPrescriptionsByPatient } from '../services/prescriptionService';
 import { getDietPlansByPatient, downloadDietPlan } from '../services/dietPlanService';
 import { getFollowUpsByPatient } from '../services/followUpService';
 import { getDocumentsByPatient, uploadDocument, deleteDocument, renameDocument } from '../services/patientDocumentService';
-import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTint, FaBirthdayCake, FaSave } from 'react-icons/fa';
+import { FaUser, FaHistory, FaFileAlt, FaPills, FaUtensils, FaEdit, FaTrash, FaArrowLeft, FaPlus, FaDownload, FaUpload, FaCalendarCheck, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTint, FaBirthdayCake, FaSave, FaPrint } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import PrintablePrescription from '../components/PrintablePrescription';
 
@@ -259,7 +259,35 @@ const PatientDetails = () => {
                                     <InfoCard icon={FaHistory} label={t('patient.chronicDiseases')} value={patient.chronicDiseases} />
                                 </div>
                             )}
-                            <div className="md:col-span-2 flex justify-end mt-4">
+                            <div className="md:col-span-2 flex justify-end gap-3 mt-4">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await downloadConsentForm(id);
+                                            const blob = new Blob([response.data]);
+                                            const url = window.URL.createObjectURL(blob);
+
+                                            // Open PDF in new window and trigger print dialog
+                                            const printWindow = window.open(url, '_blank');
+                                            if (printWindow) {
+                                                printWindow.onload = () => {
+                                                    printWindow.print();
+                                                };
+                                            }
+
+                                            // Clean up the URL after a delay
+                                            setTimeout(() => {
+                                                window.URL.revokeObjectURL(url);
+                                            }, 1000);
+                                        } catch (error) {
+                                            console.error('Error printing consent form:', error);
+                                            alert('Failed to print consent form');
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                                >
+                                    <FaPrint /> Print Consent Form
+                                </button>
                                 <button
                                     onClick={async () => {
                                         try {
@@ -276,9 +304,9 @@ const PatientDetails = () => {
                                             alert('Failed to download consent form');
                                         }
                                     }}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
                                 >
-                                    <FaFileAlt /> Download Consent Form (Marathi)
+                                    <FaDownload /> Download Consent Form
                                 </button>
                             </div>
                         </div>
@@ -899,6 +927,33 @@ const PatientDetails = () => {
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                const blob = await downloadDietPlan(plan.id);
+                                                                const url = window.URL.createObjectURL(blob);
+
+                                                                // Open PDF in new window and trigger print dialog
+                                                                const printWindow = window.open(url, '_blank');
+                                                                if (printWindow) {
+                                                                    printWindow.onload = () => {
+                                                                        printWindow.print();
+                                                                    };
+                                                                }
+
+                                                                // Clean up the URL after a delay
+                                                                setTimeout(() => {
+                                                                    window.URL.revokeObjectURL(url);
+                                                                }, 1000);
+                                                            } catch (error) {
+                                                                console.error('Error printing diet plan:', error);
+                                                                alert('Failed to print diet plan');
+                                                            }
+                                                        }}
+                                                        className="text-sm text-sky-600 hover:text-sky-800 font-medium flex items-center gap-1"
+                                                    >
+                                                        <FaPrint /> Print
+                                                    </button>
+                                                    <button
                                                         onClick={() => downloadDietPlan(plan.id)}
                                                         className="text-sm text-green-600 hover:text-green-800 font-medium flex items-center gap-1"
                                                     >
@@ -906,7 +961,7 @@ const PatientDetails = () => {
                                                     </button>
                                                     <Link
                                                         to={`/diet-plans/edit/${plan.id}`}
-                                                        className="text-sm text-sky-600 hover:text-sky-800 font-medium"
+                                                        className="text-sm text-orange-600 hover:text-orange-800 font-medium"
                                                     >
                                                         Edit
                                                     </Link>

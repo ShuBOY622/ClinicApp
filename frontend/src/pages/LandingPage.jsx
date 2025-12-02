@@ -47,7 +47,7 @@ const LandingPage = () => {
                             <img src="/logo.png" alt="Clinic Logo" className="h-12 w-12 object-contain" />
                             <div>
                                 <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
-                                    Dr. Ramesh Tarakh Clinic
+                                    साई मुलव्याध फिमोसिस कॉस्मेटिक पंचकर्म सेंटर
                                 </h1>
                                 <p className="text-sm text-slate-600">Your Health, Our Priority</p>
                             </div>
@@ -135,14 +135,14 @@ const LandingPage = () => {
                     <div className="text-center">
                         <div className="flex items-center justify-center space-x-3 mb-4">
                             <img src="/logo.png" alt="Clinic Logo" className="h-10 w-10 object-contain bg-white rounded-full p-1" />
-                            <h4 className="text-2xl font-bold">Dr. Ramesh Tarakh Clinic</h4>
+                            <h4 className="text-2xl font-bold">साई मुलव्याध फिमोसिस कॉस्मेटिक पंचकर्म सेंटर</h4>
                         </div>
                         <p className="text-slate-400 mb-6">
                             Committed to providing exceptional healthcare services
                         </p>
                         <div className="border-t border-slate-700 pt-6">
                             <p className="text-slate-500 text-sm">
-                                © 2024 Dr. Ramesh Tarakh Clinic. All rights reserved.
+                                © 2024 साई मुळव्याध फिमोसिस कॉस्मेटिक पंचकर्म सेंटर All rights reserved.
                             </p>
                         </div>
                     </div>

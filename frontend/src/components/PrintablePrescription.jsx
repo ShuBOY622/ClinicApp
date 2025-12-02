@@ -7,8 +7,27 @@ const PrintablePrescription = ({ prescription, patient }) => {
     const { t, i18n } = useTranslation();
     const isMarathi = i18n.language === 'mr';
 
-    const handlePrint = () => {
-        window.print();
+    const handlePrint = async () => {
+        try {
+            const pdfBlob = await downloadPrescriptionPdf(prescription.id);
+            const url = window.URL.createObjectURL(pdfBlob);
+
+            // Open PDF in new window and trigger print dialog
+            const printWindow = window.open(url, '_blank');
+            if (printWindow) {
+                printWindow.onload = () => {
+                    printWindow.print();
+                };
+            }
+
+            // Clean up the URL after a delay
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 1000);
+        } catch (error) {
+            console.error('Error printing prescription:', error);
+            alert('Failed to print prescription. Please try again.');
+        }
     };
 
     const handleDownloadPdf = async () => {

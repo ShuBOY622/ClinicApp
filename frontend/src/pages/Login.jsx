@@ -96,8 +96,7 @@ const Login = () => {
                 </form>
 
                 <p className="text-center text-sm text-slate-600 mt-6">
-                    Dr. Ramesh Tarakh Clinic Management System
-                </p>
+                    साई मुळव्याध फिमोसिस कॉस्मेटिक पंचकर्म सेंटर                </p>
             </div>
         </div>
     );
