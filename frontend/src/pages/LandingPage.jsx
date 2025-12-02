@@ -44,9 +44,7 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-3">
-                            <div className="bg-gradient-to-br from-sky-500 to-blue-600 p-2 rounded-lg">
-                                <FaStethoscope className="h-8 w-8 text-white" />
-                            </div>
+                            <img src="/logo.png" alt="Clinic Logo" className="h-12 w-12 object-contain" />
                             <div>
                                 <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
                                     Dr. Ramesh Tarakh Clinic
@@ -136,9 +134,7 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <div className="flex items-center justify-center space-x-3 mb-4">
-                            <div className="bg-gradient-to-br from-sky-500 to-blue-600 p-2 rounded-lg">
-                                <FaStethoscope className="h-6 w-6 text-white" />
-                            </div>
+                            <img src="/logo.png" alt="Clinic Logo" className="h-10 w-10 object-contain bg-white rounded-full p-1" />
                             <h4 className="text-2xl font-bold">Dr. Ramesh Tarakh Clinic</h4>
                         </div>
                         <p className="text-slate-400 mb-6">

@@ -18,13 +18,12 @@ const Sidebar = () => {
     return (
         <div className="flex flex-col w-64 bg-gradient-to-b from-slate-50 to-white border-r border-slate-200 h-full shadow-lg">
             <div className="flex items-center justify-center h-16 border-b border-slate-200 bg-white/50 backdrop-blur-sm">
-                <div className="flex items-center space-x-2">
-                    <div className="bg-gradient-to-br from-sky-500 to-blue-600 p-2 rounded-lg">
-                        <FaStethoscope className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
-                        ClinicApp
-                    </span>
+                <div className="flex items-center justify-center w-full">
+                    <img
+                        src="/logo.png"
+                        alt="Clinic Logo"
+                        className="h-15 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] filter"
+                    />
                 </div>
             </div>
             <nav className="flex-1 overflow-y-auto py-6">
