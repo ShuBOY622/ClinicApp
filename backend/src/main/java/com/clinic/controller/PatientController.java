@@ -38,6 +38,23 @@ public class PatientController {
         }
     }
 
+    @GetMapping("/{id}/phimosis-consent-form")
+    public ResponseEntity<byte[]> downloadPhimosisConsentForm(@PathVariable Long id) {
+        try {
+            byte[] pdfBytes = pdfService.generatePhimosisConsentFormPdf(id);
+
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "phimosis_consent_form_" + id + ".pdf");
+            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping
     public ResponseEntity<PatientDTO> createPatient(@Valid @RequestBody PatientDTO patientDTO) {
         return new ResponseEntity<>(patientService.createPatient(patientDTO), HttpStatus.CREATED);

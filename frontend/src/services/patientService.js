@@ -29,3 +29,9 @@ export const downloadConsentForm = (id) => {
         responseType: 'blob'
     });
 };
+
+export const downloadPhimosisConsentForm = (id) => {
+    return api.get(`/patients/${id}/phimosis-consent-form`, {
+        responseType: 'blob'
+    });
+};

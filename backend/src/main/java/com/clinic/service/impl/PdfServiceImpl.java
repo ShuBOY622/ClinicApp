@@ -60,7 +60,17 @@ public class PdfServiceImpl implements PdfService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
-        String html = generateConsentHtml(patient);
+        String html = generateConsentHtml(patient, "anal");
+        return generatePdfFromHtml(html);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] generatePhimosisConsentFormPdf(Long patientId) throws Exception {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+        String html = generateConsentHtml(patient, "phimosis");
         return generatePdfFromHtml(html);
     }
 
@@ -278,7 +288,7 @@ public class PdfServiceImpl implements PdfService {
         html.append("</div>");
     }
 
-    private String generateConsentHtml(Patient patient) throws IOException {
+    private String generateConsentHtml(Patient patient, String consentType) throws IOException {
         // Calculate age
         int age = 0;
         if (patient.getDateOfBirth() != null) {
@@ -316,8 +326,13 @@ public class PdfServiceImpl implements PdfService {
 
         // Consent Text
         html.append("<div class='consent-text'>");
-        html.append("<p>असे लिहून देतो की, मला गुदद्वार विकार असून माझी गुदद्वार परीक्षा करण्यास आणि त्यानुसार पुढील उपचार करण्यास माझी सहमती असून त्याबाबत माझी कोणत्याही प्रकारची तक्रार नाही.</p>");
-        html.append("<p>मी माझ्या जबाबदारीवर समजून सांगण्यात आलेल्या प्रमाणे गुदद्वार परीक्षणास व पुढील तपासणी आणि उपचारास पूर्णतः संमती देतो आहे.</p>");
+        if ("phimosis".equals(consentType)) {
+            html.append("<p>असे लिहून देतो की, मला निरुध प्रकाश (फिमोसीस) असून माझी निरुध प्रकाश परीक्षा करण्यास आणि त्यानुसार पुढील उपचार करण्यास माझी सहमती असून त्याबाबत माझी कोणत्याही प्रकारची तक्रार नाही.</p>");
+            html.append("<p>मी माझ्या जबाबदारीवर समजून सांगण्यात आलेल्या प्रमाणे निरुध प्रकाश परीक्षणास व पुढील तपासणी आणि उपचारास पूर्णतः संमती देतो आहे.</p>");
+        } else {
+            html.append("<p>असे लिहून देतो की, मला गुदद्वार विकार असून माझी गुदद्वार परीक्षा करण्यास आणि त्यानुसार पुढील उपचार करण्यास माझी सहमती असून त्याबाबत माझी कोणत्याही प्रकारची तक्रार नाही.</p>");
+            html.append("<p>मी माझ्या जबाबदारीवर समजून सांगण्यात आलेल्या प्रमाणे गुदद्वार परीक्षणास व पुढील तपासणी आणि उपचारास पूर्णतः संमती देतो आहे.</p>");
+        }
         html.append("<p>करिता ही लेखी संमती.</p>");
         html.append("</div>");
 
@@ -329,8 +344,13 @@ public class PdfServiceImpl implements PdfService {
         html.append("</div>");
 
         // Signature
-        html.append("<div class='signature'>");
+        html.append("<div class='signature-grid'>");
+        html.append("<div class='signature-item'>");
+        html.append("<div class='signature-line'>नातेवाईकाची सही / Relative's Signature</div>");
+        html.append("</div>");
+        html.append("<div class='signature-item'>");
         html.append("<div class='signature-line'>रुग्णाची सही / Patient's Signature</div>");
+        html.append("</div>");
         html.append("</div>");
 
         html.append("</body>");
@@ -570,6 +590,15 @@ public class PdfServiceImpl implements PdfService {
                 gap: 20px;
                 margin-top: 40px;
                 margin-bottom: 40px;
+            }
+            .signature-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                margin-top: 50px;
+            }
+            .signature-item {
+                text-align: center;
             }
             .header-image {
                 text-align: center;

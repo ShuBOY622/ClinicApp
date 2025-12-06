@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { getPatientById, deletePatient, updatePatient, downloadConsentForm } from '../services/patientService';
+import { getPatientById, deletePatient, updatePatient, downloadConsentForm, downloadPhimosisConsentForm } from '../services/patientService';
 import { getPrescriptionsByPatient } from '../services/prescriptionService';
 import { getDietPlansByPatient, downloadDietPlan } from '../services/dietPlanService';
 import { getFollowUpsByPatient } from '../services/followUpService';
@@ -260,22 +260,18 @@ const PatientDetails = () => {
                                 </div>
                             )}
                             <div className="md:col-span-2 flex justify-end gap-3 mt-4">
+                                {/* Anal Disorder Consent Form Buttons */}
                                 <button
                                     onClick={async () => {
                                         try {
                                             const response = await downloadConsentForm(id);
-                                            // response.data is already a blob
                                             const url = window.URL.createObjectURL(response.data);
-
-                                            // Open PDF in new window and trigger print dialog
                                             const printWindow = window.open(url, '_blank');
                                             if (printWindow) {
                                                 printWindow.onload = () => {
                                                     printWindow.print();
                                                 };
                                             }
-
-                                            // Clean up the URL after a delay
                                             setTimeout(() => {
                                                 window.URL.revokeObjectURL(url);
                                             }, 1000);
@@ -286,13 +282,12 @@ const PatientDetails = () => {
                                     }}
                                     className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
                                 >
-                                    <FaPrint /> Print Consent Form
+                                    <FaPrint /> Print Anal Disorder Consent
                                 </button>
                                 <button
                                     onClick={async () => {
                                         try {
                                             const response = await downloadConsentForm(id);
-                                            // response.data is already a blob
                                             const url = window.URL.createObjectURL(response.data);
                                             const link = document.createElement('a');
                                             link.href = url;
@@ -308,7 +303,53 @@ const PatientDetails = () => {
                                     }}
                                     className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
                                 >
-                                    <FaDownload /> Download Consent Form
+                                    <FaDownload /> Download Anal Disorder Consent
+                                </button>
+
+                                {/* Phimosis Consent Form Buttons */}
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await downloadPhimosisConsentForm(id);
+                                            const url = window.URL.createObjectURL(response.data);
+                                            const printWindow = window.open(url, '_blank');
+                                            if (printWindow) {
+                                                printWindow.onload = () => {
+                                                    printWindow.print();
+                                                };
+                                            }
+                                            setTimeout(() => {
+                                                window.URL.revokeObjectURL(url);
+                                            }, 1000);
+                                        } catch (error) {
+                                            console.error('Error printing phimosis consent form:', error);
+                                            alert('Failed to print phimosis consent form');
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                                >
+                                    <FaPrint /> Print Phimosis Consent
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await downloadPhimosisConsentForm(id);
+                                            const url = window.URL.createObjectURL(response.data);
+                                            const link = document.createElement('a');
+                                            link.href = url;
+                                            link.setAttribute('download', `phimosis_consent_form_${id}.pdf`);
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            link.remove();
+                                            window.URL.revokeObjectURL(url);
+                                        } catch (error) {
+                                            console.error('Error downloading phimosis consent form:', error);
+                                            alert('Failed to download phimosis consent form');
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
+                                >
+                                    <FaDownload /> Download Phimosis Consent
                                 </button>
                             </div>
                         </div>
